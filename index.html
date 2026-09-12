@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bilik Uji Relevansi — Judul & Foto Produk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14171c;
+  --panel:#1b1f26;
+  --panel-2:#20252d;
+  --line:#2b313b;
+  --text:#eeece5;
+  --text-dim:#9aa0aa;
+  --amber:#e3a73b;
+  --amber-soft:rgba(227,167,59,.16);
+  --teal:#4fb6a6;
+  --teal-soft:rgba(79,182,166,.16);
+  --red-soft:rgba(201,107,86,.35);
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--ink);
+  color:var(--text);
+  font-family:'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'IBM Plex Mono', ui-monospace, monospace;}
+.wrap{max-width:880px;margin:0 auto;padding:32px 20px 80px;}
+
+header.top{margin-bottom:22px;}
+.kicker{font-size:13px;color:var(--teal);margin-bottom:8px;}
+h1{font-size:clamp(22px,4vw,30px);margin:0 0 10px;font-weight:600;letter-spacing:-0.01em;}
+.lead{color:var(--text-dim);font-size:14.5px;max-width:62ch;margin:0;}
+
+.segmented{display:flex;gap:8px;margin:24px 0 14px;flex-wrap:wrap;}
+.seg-btn{
+  flex:1 1 auto;min-width:170px;
+  background:var(--panel);border:1px solid var(--line);color:var(--text-dim);
+  padding:12px 16px;border-radius:var(--radius);cursor:pointer;font-size:14px;font-family:inherit;
+  text-align:left;transition:border-color .15s, color .15s, background .15s;
+}
+.seg-btn span{display:block;font-size:11px;color:var(--text-dim);margin-top:3px;}
+.seg-btn.active{border-color:var(--amber);color:var(--text);background:var(--amber-soft);}
+.seg-btn.active span{color:var(--amber);}
+.seg-btn:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+
+.panel{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px 22px;margin-bottom:18px;
+}
+.panel h3{font-size:14px;margin:0 0 4px;font-weight:600;}
+.panel p.hint{font-size:12.5px;color:var(--text-dim);margin:0 0 12px;}
+
+label{display:block;font-size:13px;color:var(--text-dim);margin-bottom:8px;}
+input[type=text]{
+  width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+  padding:12px 14px;border-radius:8px;font-size:15px;font-family:inherit;margin-bottom:18px;
+}
+input[type=text]:focus{outline:2px solid var(--amber);outline-offset:1px;border-color:var(--amber);}
+input[type=text]::placeholder{color:#5c616b;}
+
+.dropzone{
+  border:1.5px dashed var(--line);border-radius:8px;padding:18px;text-align:center;
+  color:var(--text-dim);font-size:13px;cursor:pointer;position:relative;margin-bottom:18px;
+  transition:border-color .15s, background .15s;
+}
+.dropzone.drag{border-color:var(--teal);background:var(--teal-soft);}
+.dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.dropzone img{max-height:100px;border-radius:6px;display:block;margin:0 auto 8px;}
+
+.btn-run{
+  width:100%;background:var(--amber);color:#1a1305;border:none;border-radius:8px;
+  padding:14px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;
+}
+.btn-run:disabled{opacity:.5;cursor:progress;}
+.btn-run:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+.status-line{font-size:13px;color:var(--text-dim);margin-top:10px;min-height:18px;}
+
+#results[hidden]{display:none;}
+.score-top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+.score-num{font-family:'IBM Plex Mono',monospace;font-size:46px;font-weight:600;color:var(--amber);}
+.score-grade{font-size:15px;color:var(--text-dim);}
+.meter{position:relative;height:10px;border-radius:6px;background:var(--panel-2);margin:16px 0 6px;overflow:hidden;}
+.meter-zones{position:absolute;inset:0;display:flex;}
+.meter-marker{position:absolute;top:-4px;width:2px;height:18px;background:var(--text);transform:translateX(-1px);}
+.meter-ticks{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;}
+.score-note{font-size:13px;color:var(--text-dim);margin-top:14px;}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px;}
+@media (max-width:640px){.cols{grid-template-columns:1fr;}}
+.kw-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.kw-table th{text-align:left;font-weight:500;color:var(--text-dim);font-size:10.5px;padding:0 6px 8px;border-bottom:1px solid var(--line);}
+.kw-table td{padding:7px 6px;border-bottom:1px solid var(--line);}
+.kw-table tr:last-child td{border-bottom:none;}
+.kw-table td.num{font-family:'IBM Plex Mono',monospace;text-align:right;color:var(--text-dim);white-space:nowrap;}
+.badge{display:inline-block;font-size:9.5px;padding:2px 6px;border-radius:20px;margin-left:6px;white-space:nowrap;}
+.badge.full{background:var(--amber-soft);color:var(--amber);}
+.badge.partial{background:var(--teal-soft);color:var(--teal);}
+.scroll-x{overflow-x:auto;}
+.table-caption{font-size:11px;color:var(--text-dim);margin-top:8px;}
+
+.visual-panel{margin-top:20px;}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.tag{font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--line);color:var(--text-dim);}
+.tag.hit{border-color:var(--amber);color:var(--amber);background:var(--amber-soft);}
+
+details.block{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 22px;margin-bottom:14px;}
+details.block summary{cursor:pointer;font-size:14px;color:var(--text-dim);}
+details.block[open] summary{color:var(--text);margin-bottom:6px;}
+.hist-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
+.hist-row:last-child{border-bottom:none;}
+.hist-row .h-title{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hist-row .h-meta{color:var(--text-dim);font-size:11.5px;}
+.hist-row .h-score{font-size:13px;flex-shrink:0;}
+.clear-btn{background:none;border:1px solid var(--line);color:var(--text-dim);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;margin-top:10px;font-family:inherit;}
+
+footer{margin-top:32px;font-size:12px;color:var(--text-dim);border-top:1px solid var(--line);padding-top:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="kicker">Simulator relevansi iklan</div>
+    <h1>Bilik uji relevansi judul &amp; foto produk</h1>
+    <p class="lead">Uji seberapa dekat judul dan foto produkmu dengan pola pencocokan kata kunci ala Shopee GMV Max, dibangun dari data volume pencarian kategori blouse rayon polkadot dan celana kulot wanita yang sudah kamu kumpulkan.</p>
+  </header>
+
+  <div class="segmented" role="group" aria-label="Pilih kategori produk">
+    <button class="seg-btn active" data-cat="blouse" type="button" aria-pressed="true">
+      Blouse rayon polkadot
+      <span id="blouse-total-vol"></span>
+    </button>
+    <button class="seg-btn" data-cat="kulot" type="button" aria-pressed="false">
+      Celana kulot wanita
+      <span id="kulot-total-vol"></span>
+    </button>
+  </div>
+
+  <div class="panel">
+    <p class="hint" style="margin-bottom:14px;">Kata kunci bervolume tertinggi di kategori terpilih</p>
+    <div id="preview-bars"></div>
+  </div>
+
+  <div class="panel">
+    <label for="title-input">Judul produk yang ingin diuji</label>
+    <input type="text" id="title-input" placeholder="mis. Celana Kulot Wanita Wide Leg Jumbo Kekinian Bahan Katun" />
+
+    <label>Foto produk (opsional)</label>
+    <div class="dropzone" id="dropzone">
+      <div id="dropzone-content">Seret foto ke sini, atau ketuk untuk memilih file</div>
+      <input type="file" id="photo-input" accept="image/*" />
+    </div>
+
+    <button class="btn-run" id="run-btn" type="button">Uji relevansi produk</button>
+    <div class="status-line" id="status-line"></div>
+  </div>
+
+  <div class="panel" id="results" hidden>
+    <div class="score-top">
+      <div class="score-num" id="score-num">0%</div>
+      <div class="score-grade" id="score-grade">—</div>
+    </div>
+    <div class="meter">
+      <div class="meter-zones">
+        <div style="width:35%;background:var(--red-soft)"></div>
+        <div style="width:25%;background:var(--teal-soft)"></div>
+        <div style="width:40%;background:var(--amber-soft)"></div>
+      </div>
+      <div class="meter-marker" id="meter-marker"></div>
+    </div>
+    <div class="meter-ticks"><span>0</span><span>35 · cukup relevan</span><span>60 · sangat relevan</span><span>100</span></div>
+    <p class="score-note" id="score-note"></p>
+
+    <div class="cols">
+      <div class="col">
+        <h3>Sinyal kata kunci terdeteksi</h3>
+        <p class="hint">Diurutkan dari volume pencarian bulanan tertinggi</p>
+        <div class="scroll-x">
+          <table class="kw-table" id="matched-table">
+            <thead><tr><th>Kata kunci</th><th>Frek.</th><th>Volume</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="table-caption" id="matched-caption"></p>
+      </div>
+      <div class="col">
+        <h3>Peluang volume tinggi terlewat</h3>
+        <p class="hint">Belum tercakup di judul, layak dipertimbangkan</p>
+        <div class="scroll-x">
+          <table class="kw-table" id="missed-table">
+            <thead><tr><th>Kata kunci</th><th>Frek.</th><th>Volume</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="table-caption" id="missed-caption"></p>
+      </div>
+    </div>
+
+    <div class="visual-panel" id="visual-panel" hidden>
+      <h3>Sinyal visual dari foto</h3>
+      <p class="hint" id="visual-hint"></p>
+      <div class="tags" id="visual-tags"></div>
+    </div>
+  </div>
+
+  <details class="block">
+    <summary>Riwayat pengujian</summary>
+    <div id="history-list" style="margin-top:10px;"></div>
+    <button class="clear-btn" id="clear-history">Hapus riwayat</button>
+  </details>
+
+  <details class="block">
+    <summary>Bagaimana skor ini dihitung?</summary>
+    <p style="font-size:13px;color:var(--text-dim);line-height:1.7;margin-top:8px;">
+      Setiap kata kunci di bank data kategori ini punya bobot volume pencarian bulanan. Judul, dan tag visual dari foto bila diunggah, dicek satu per satu ke seluruh kata kunci: cocok penuh bernilai 1, cocok sebagian kata bernilai 0,5, tidak cocok bernilai 0. Skor akhir adalah total volume yang berhasil "tertangkap" dibagi total volume seluruh kata kunci kategori tersebut — makin tinggi, makin besar porsi permintaan pencarian yang berpotensi dijangkau sistem penargetan otomatis seperti GMV Max.
+    </p>
+  </details>
+
+  <footer>
+    Skor dihitung dari data volume pencarian &amp; frekuensi kata kunci yang kamu unggah sendiri. Ini simulasi heuristik untuk latihan optimasi judul dan foto, bukan angka resmi dari algoritma Shopee.
+  </footer>
+
+</div>
+
+<script>
+const DATA = {
+  blouse: [{"k": "baju", "f": 4, "v": 2590873}, {"k": "baju wanita", "f": 4, "v": 2564103}, {"k": "kemeja wanita", "f": 18, "v": 2102887}, {"k": "kemeja", "f": 21, "v": 1600443}, {"k": "blouse", "f": 57, "v": 1525350}, {"k": "jeans", "f": 3, "v": 1010090}, {"k": "kemeja wanita kekinian korean style", "f": 3, "v": 943006}, {"k": "blouse korean style", "f": 4, "v": 884885}, {"k": "baju wanita kekinian", "f": 4, "v": 818388}, {"k": "kemeja wanita lengan panjang", "f": 6, "v": 471358}, {"k": "top wanita", "f": 3, "v": 469381}, {"k": "top", "f": 3, "v": 466621}, {"k": "blouse wanita", "f": 42, "v": 376652}, {"k": "blouse wanita korean style", "f": 5, "v": 333827}, {"k": "blouse wanita kekinian", "f": 44, "v": 311134}, {"k": "polkadot", "f": 4, "v": 210528}, {"k": "kemeja wanita kekinian", "f": 18, "v": 185335}, {"k": "blouse polkadot", "f": 4, "v": 130488}, {"k": "dalaman wanita", "f": 42, "v": 109563}, {"k": "kemeja blouse wanita korean style", "f": 3, "v": 109531}, {"k": "baju blouse wanita", "f": 4, "v": 99823}, {"k": "blouse fit body", "f": 4, "v": 86428}, {"k": "kemeja wanita korean style", "f": 3, "v": 86142}, {"k": "kemeja salur wanita", "f": 3, "v": 78085}, {"k": "katun", "f": 7, "v": 72988}, {"k": "blouse polkadot wanita", "f": 4, "v": 71584}, {"k": "polkadot blouse", "f": 4, "v": 68101}, {"k": "kemeja salur", "f": 3, "v": 61833}, {"k": "kemeja rayon wanita", "f": 12, "v": 58892}, {"k": "kemeja blouse wanita", "f": 18, "v": 55058}, {"k": "baju dalaman wanita", "f": 4, "v": 54619}, {"k": "kemeja rayon", "f": 12, "v": 51306}, {"k": "blouse katun", "f": 8, "v": 49177}, {"k": "blouse motif", "f": 10, "v": 39205}, {"k": "polka", "f": 4, "v": 38857}, {"k": "baju blouse", "f": 4, "v": 38625}, {"k": "blouse rayon", "f": 23, "v": 35218}, {"k": "baju kekinian", "f": 4, "v": 34812}, {"k": "blouse polka", "f": 4, "v": 34418}, {"k": "blouse wanita lengan panjang", "f": 12, "v": 31739}, {"k": "kemeja blouse", "f": 21, "v": 30584}, {"k": "basic", "f": 5, "v": 30089}, {"k": "korean style", "f": 4, "v": 28142}, {"k": "blouse wanita premium", "f": 5, "v": 26641}, {"k": "baju tanpa lengan wanita", "f": 3, "v": 24853}, {"k": "80s style", "f": 4, "v": 24091}, {"k": "fitted", "f": 3, "v": 23006}, {"k": "blouse kerut", "f": 6, "v": 18986}, {"k": "baju dalam wanita", "f": 4, "v": 18741}, {"k": "kemeja lengan panjang wanita", "f": 6, "v": 18339}, {"k": "salur", "f": 3, "v": 18205}, {"k": "blouse lengan panjang", "f": 14, "v": 17362}, {"k": "kemeja rayon twill", "f": 3, "v": 16758}, {"k": "blouse kekinian", "f": 59, "v": 15777}, {"k": "kerah", "f": 3, "v": 15479}, {"k": "blouse jeans", "f": 3, "v": 15266}, {"k": "korean style wanita", "f": 5, "v": 14687}, {"k": "baju tanpa lengan", "f": 3, "v": 14369}, {"k": "kemeja tanpa lengan wanita", "f": 7, "v": 13935}, {"k": "blouse kemeja wanita", "f": 18, "v": 13819}, {"k": "blouse premium", "f": 5, "v": 13765}, {"k": "motif", "f": 10, "v": 13711}, {"k": "blouse katun wanita", "f": 7, "v": 13447}, {"k": "blouse kemeja", "f": 21, "v": 13442}, {"k": "bahan", "f": 5, "v": 13090}, {"k": "kemeja panjang wanita", "f": 6, "v": 12970}, {"k": "blouse wanita motif", "f": 10, "v": 12648}, {"k": "baju kekinian wanita", "f": 4, "v": 12413}, {"k": "top wanita kekinian", "f": 3, "v": 12129}, {"k": "blouse casual", "f": 11, "v": 12031}, {"k": "korean blouse", "f": 10, "v": 11422}, {"k": "korean", "f": 9, "v": 10958}, {"k": "blouse panjang", "f": 14, "v": 10445}, {"k": "top blouse", "f": 3, "v": 10226}, {"k": "kemeja wanita lengan 3/4", "f": 7, "v": 9963}, {"k": "kemeja wanita rayon", "f": 12, "v": 9278}, {"k": "kemeja rayon wanita lengan panjang", "f": 3, "v": 8843}, {"k": "blouse kemeja wanita korean style", "f": 3, "v": 8340}, {"k": "kemeja tanpa lengan", "f": 7, "v": 8226}, {"k": "kemeja kekinian", "f": 21, "v": 7909}, {"k": "kemeja wanita blouse", "f": 18, "v": 7617}, {"k": "blouse rayon twill", "f": 4, "v": 7546}, {"k": "blouse salur", "f": 3, "v": 7540}, {"k": "kemeja korean style", "f": 3, "v": 7417}, {"k": "dalaman baju", "f": 4, "v": 7274}, {"k": "blouse top", "f": 3, "v": 7202}, {"k": "blouse tanpa lengan", "f": 21, "v": 6854}, {"k": "setelah wanita", "f": 42, "v": 6737}, {"k": "blouse korean style wanita", "f": 5, "v": 6705}, {"k": "baju wanita blouse", "f": 4, "v": 6493}, {"k": "lengan panjang wanita", "f": 12, "v": 6473}, {"k": "blouse motif wanita", "f": 10, "v": 6390}, {"k": "blouse salur wanita", "f": 3, "v": 5971}, {"k": "baju dalaman", "f": 4, "v": 5951}, {"k": "blouse rayon motif", "f": 7, "v": 5857}, {"k": "kemeja wanita salur", "f": 3, "v": 5805}, {"k": "dalaman baju wanita", "f": 4, "v": 5798}, {"k": "blouse rayon wanita", "f": 22, "v": 5648}, {"k": "blouse korean", "f": 10, "v": 5467}, {"k": "blouse berkerah", "f": 3, "v": 5332}, {"k": "bahan rayon", "f": 4, "v": 5140}, {"k": "kemeja korean style wanita", "f": 3, "v": 5140}, {"k": "blouse premium wanita", "f": 5, "v": 4970}, {"k": "blouse kerah", "f": 3, "v": 4889}, {"k": "rayon twill", "f": 4, "v": 4719}, {"k": "pengecil lengan", "f": 21, "v": 4504}, {"k": "blouse panjang wanita", "f": 12, "v": 4238}, {"k": "style", "f": 4, "v": 4131}, {"k": "baju.", "f": 4, "v": 3871}, {"k": "adem", "f": 7, "v": 3806}, {"k": "kemeja kekinian wanita", "f": 18, "v": 3728}, {"k": "blouse lengan panjang wanita", "f": 12, "v": 3677}, {"k": "berkerah", "f": 3, "v": 3653}, {"k": "top blouse wanita", "f": 3, "v": 3585}, {"k": "jeans 7/8", "f": 3, "v": 3524}, {"k": "kemeja wanita panjang", "f": 6, "v": 3370}, {"k": "korean style blouse", "f": 5, "v": 3322}, {"k": "polkadot wanita", "f": 4, "v": 3027}, {"k": "baju wanita tanpa lengan", "f": 3, "v": 2925}, {"k": "knit blouse", "f": 3, "v": 2905}, {"k": "baju lengan", "f": 3, "v": 2854}, {"k": "baju 90an wanita", "f": 4, "v": 2680}, {"k": "baju 35", "f": 4, "v": 2635}, {"k": "blouse rempel", "f": 3, "v": 2582}, {"k": "blouse rempel wanita", "f": 3, "v": 2453}, {"k": "blouse adem", "f": 7, "v": 2434}, {"k": "blouse casual wanita", "f": 11, "v": 2428}, {"k": "baju baju", "f": 4, "v": 2414}, {"k": "jema", "f": 4, "v": 2395}, {"k": "jeans kekinian", "f": 3, "v": 2391}, {"k": "baju a", "f": 4, "v": 2289}, {"k": "kemeja wanita rayon twill", "f": 3, "v": 2283}, {"k": "blouse kerut wanita", "f": 5, "v": 2279}, {"k": "baju v", "f": 4, "v": 2269}, {"k": "baju s", "f": 4, "v": 2254}, {"k": "polka blouse", "f": 4, "v": 2219}, {"k": "kemeja korean", "f": 7, "v": 2186}, {"k": "bajunya", "f": 4, "v": 2175}, {"k": "blouse wanita rayon", "f": 22, "v": 2165}, {"k": "baju 10k", "f": 4, "v": 2056}, {"k": "tanpa lengan", "f": 21, "v": 2044}, {"k": "blouse top wanita", "f": 3, "v": 2036}, {"k": "baju setelah wanita kekinian", "f": 4, "v": 1927}, {"k": "baju 1set", "f": 4, "v": 1882}, {"k": "blouse bahan rayon", "f": 4, "v": 1822}, {"k": "blouse fit", "f": 4, "v": 1816}, {"k": "v top", "f": 3, "v": 1753}, {"k": "kerut", "f": 6, "v": 1752}, {"k": "style korean", "f": 5, "v": 1733}, {"k": "baju wanita.", "f": 4, "v": 1731}, {"k": "rayon motif", "f": 7, "v": 1723}, {"k": "jdf", "f": 4, "v": 1705}, {"k": "jeans 3/4", "f": 3, "v": 1625}, {"k": "m style", "f": 5, "v": 1596}, {"k": "jeans 7/9", "f": 3, "v": 1596}, {"k": "blouse 3c", "f": 59, "v": 1578}, {"k": "blouse wanita katun", "f": 7, "v": 1511}, {"k": "blouse wanita kekinian korean style", "f": 5, "v": 1511}, {"k": "style wanita", "f": 5, "v": 1472}, {"k": "blouse salur wanita kekinian", "f": 3, "v": 1462}, {"k": "baju biasa wanita", "f": 4, "v": 1377}, {"k": "body fit", "f": 4, "v": 1348}, {"k": "rempel", "f": 3, "v": 1335}, {"k": "kemeja lengan 3/4 wanita", "f": 7, "v": 1265}, {"k": "kemeja lengan 3/4", "f": 7, "v": 1202}, {"k": "baju wanita terkini", "f": 4, "v": 1196}, {"k": "kemeja 3/4", "f": 21, "v": 1187}, {"k": "kemeja wanita korean", "f": 5, "v": 1173}, {"k": "casual wanita", "f": 11, "v": 1124}, {"k": "baju l", "f": 4, "v": 1093}, {"k": "baju 3/4", "f": 4, "v": 1092}, {"k": "baju t", "f": 4, "v": 1090}, {"k": "wanita korean style", "f": 4, "v": 1079}, {"k": "amena blouse", "f": 4, "v": 1069}, {"k": "lengan 3/4", "f": 21, "v": 1048}, {"k": "kemeja twill", "f": 3, "v": 1047}, {"k": "basic blouse", "f": 5, "v": 1038}, {"k": "baju setelah wanita", "f": 4, "v": 1031}, {"k": "setelah rayon", "f": 23, "v": 1024}, {"k": "baju m", "f": 4, "v": 1004}, {"k": "top kekinian", "f": 3, "v": 971}, {"k": "baju kecil", "f": 4, "v": 949}, {"k": "selana wanita", "f": 42, "v": 916}, {"k": "baju terkini", "f": 4, "v": 916}, {"k": "kemeja 3/4 wanita", "f": 18, "v": 893}, {"k": "blouse tanpa lengan wanita", "f": 16, "v": 886}, {"k": "blouse basic", "f": 5, "v": 884}, {"k": "dalam wanita", "f": 42, "v": 881}, {"k": "baju c", "f": 4, "v": 878}, {"k": "blouse kekinian korean style", "f": 5, "v": 873}, {"k": "salur wanita", "f": 3, "v": 831}, {"k": "rayon kemeja", "f": 12, "v": 819}, {"k": "korean blouse wanita", "f": 8, "v": 803}, {"k": "baju buat wanita", "f": 4, "v": 773}, {"k": "baju 1k", "f": 4, "v": 756}, {"k": "blouse 3/4", "f": 57, "v": 752}, {"k": "kala top", "f": 3, "v": 736}, {"k": "lengan 3/4 wanita", "f": 16, "v": 721}, {"k": "baju 100", "f": 4, "v": 696}, {"k": "baju o", "f": 4, "v": 690}, {"k": "dalaman lengan panjang wanita", "f": 12, "v": 683}, {"k": "baju wanita lengan 3/4", "f": 3, "v": 680}, {"k": "lengan baju", "f": 3, "v": 664}, {"k": "baju 3pcs", "f": 4, "v": 625}, {"k": "sempat wanita", "f": 42, "v": 601}, {"k": "blouse wanita korean", "f": 8, "v": 599}, {"k": "baju baju wanita", "f": 4, "v": 596}, {"k": "dalaman lengan panjang", "f": 14, "v": 588}, {"k": "kerah v", "f": 3, "v": 583}, {"k": "katun wanita", "f": 7, "v": 576}, {"k": "dalaman kemeja", "f": 21, "v": 566}, {"k": "dalaman panjang", "f": 14, "v": 554}, {"k": "kemeja s", "f": 21, "v": 552}, {"k": "dalaman panjang wanita", "f": 12, "v": 551}, {"k": "baju 24s", "f": 4, "v": 551}, {"k": "baju baju wanita kekinian", "f": 4, "v": 540}, {"k": "wanita panjang", "f": 12, "v": 536}, {"k": "baju wanita blouse kekinian", "f": 4, "v": 528}, {"k": "panjang wanita", "f": 12, "v": 525}, {"k": "blouse lengan kerut", "f": 3, "v": 504}, {"k": "kemeja v", "f": 21, "v": 495}, {"k": "baju 90an", "f": 4, "v": 490}, {"k": "v premium", "f": 5, "v": 487}, {"k": "wanita korean", "f": 7, "v": 481}, {"k": "casual blouse", "f": 11, "v": 477}, {"k": "kemeja style", "f": 3, "v": 475}, {"k": "baju samaan", "f": 4, "v": 474}, {"k": "blouse wanita lengan 3/4", "f": 16, "v": 468}, {"k": "baju wanita v", "f": 4, "v": 467}, {"k": "baju j", "f": 4, "v": 463}, {"k": "baju wanita kekinian blouse", "f": 4, "v": 460}, {"k": "baju h", "f": 4, "v": 457}, {"k": "dalaman kemeja wanita", "f": 18, "v": 454}, {"k": "baju blouse kekinian", "f": 4, "v": 451}, {"k": "baju g", "f": 4, "v": 451}, {"k": "blouse twill", "f": 4, "v": 447}, {"k": "kemeja blouse wanita kekinian", "f": 18, "v": 439}, {"k": "baju sama", "f": 4, "v": 436}, {"k": "blouse tanpa kerah", "f": 3, "v": 435}, {"k": "kemeja lengan", "f": 7, "v": 428}, {"k": "blouse 3m", "f": 57, "v": 424}, {"k": "baju sekarang", "f": 4, "v": 424}, {"k": "blouse baju", "f": 4, "v": 414}, {"k": "baju 5000", "f": 4, "v": 394}, {"k": "rayon wanita", "f": 22, "v": 389}, {"k": "blouse terkini", "f": 59, "v": 385}, {"k": "kemeja 7/8 wanita", "f": 18, "v": 385}, {"k": "baju 3d", "f": 4, "v": 374}, {"k": "baju ada", "f": 4, "v": 369}, {"k": "berkerah wanita", "f": 3, "v": 357}, {"k": "katun blouse", "f": 8, "v": 356}, {"k": "blouse kerah v", "f": 3, "v": 343}, {"k": "kerah wanita", "f": 3, "v": 337}, {"k": "kemeja 4xl", "f": 21, "v": 336}, {"k": "baju 50k dapat 5", "f": 4, "v": 336}, {"k": "bahan adem", "f": 4, "v": 334}, {"k": "blouse style", "f": 4, "v": 333}, {"k": "panjang panjang", "f": 14, "v": 323}, {"k": "dalaman tanpa lengan", "f": 21, "v": 315}, {"k": "baju 10k wanita", "f": 4, "v": 315}, {"k": "kemeja rayon twill wanita", "f": 3, "v": 315}, {"k": "kemeja dalaman", "f": 21, "v": 313}, {"k": "blouse 120", "f": 59, "v": 312}, {"k": "kemeja salur kecil", "f": 3, "v": 312}, {"k": "baju 5000an", "f": 4, "v": 310}, {"k": "blouse v", "f": 57, "v": 305}, {"k": "kemeja 3xl", "f": 21, "v": 302}, {"k": "wanita kekinian korean style", "f": 4, "v": 302}, {"k": "2me style", "f": 4, "v": 302}, {"k": "baju 2", "f": 4, "v": 294}, {"k": "top wanita blouse", "f": 3, "v": 292}, {"k": "baju 1", "f": 4, "v": 291}, {"k": "baju x", "f": 4, "v": 288}, {"k": "katun 24s", "f": 7, "v": 287}, {"k": "2023 jeans", "f": 3, "v": 286}, {"k": "wanita premium", "f": 5, "v": 280}, {"k": "baju i", "f": 4, "v": 280}, {"k": "blouse kemeja korean style", "f": 3, "v": 276}, {"k": "premium blouse", "f": 5, "v": 269}, {"k": "blouse kemeja salur", "f": 3, "v": 266}, {"k": "katun lengan panjang", "f": 4, "v": 260}, {"k": "baju 90s", "f": 4, "v": 257}, {"k": "kemeja l", "f": 21, "v": 250}, {"k": "blouse kemeja rayon", "f": 12, "v": 243}, {"k": "baju buat", "f": 4, "v": 242}, {"k": "24s premium", "f": 5, "v": 240}, {"k": "kemeja m", "f": 21, "v": 236}, {"k": "rayon polka", "f": 3, "v": 234}, {"k": "baju y", "f": 4, "v": 232}, {"k": "kemeja kecil", "f": 21, "v": 231}, {"k": "blouse katun wanita lengan panjang", "f": 3, "v": 230}, {"k": "rayon lengan panjang", "f": 6, "v": 229}, {"k": "baju wanita kekinian 2024", "f": 4, "v": 224}, {"k": "selana dalam wanita", "f": 42, "v": 223}, {"k": "9.9 baju", "f": 4, "v": 223}, {"k": "kemeja wanita kekinian 2024", "f": 18, "v": 220}, {"k": "style korean wanita", "f": 5, "v": 219}, {"k": "baju 10", "f": 4, "v": 218}, {"k": "kemana wanita", "f": 42, "v": 216}, {"k": "kemeja p", "f": 21, "v": 213}, {"k": "perpanjangan", "f": 14, "v": 212}, {"k": "blouse dalaman", "f": 59, "v": 205}, {"k": "katun 100%", "f": 7, "v": 204}, {"k": "l top", "f": 3, "v": 202}, {"k": "baju lengan wanita", "f": 3, "v": 199}, {"k": "rempel blouse wanita", "f": 3, "v": 197}, {"k": "katun 20s", "f": 7, "v": 196}, {"k": "3/4 jeans", "f": 3, "v": 189}, {"k": "dalaman knit", "f": 3, "v": 188}, {"k": "blouse lengan", "f": 21, "v": 185}, {"k": "wanita style", "f": 4, "v": 181}, {"k": "blouse wanita style", "f": 5, "v": 180}, {"k": "kemeja wanita panjang kekinian", "f": 6, "v": 177}, {"k": "jeans 38", "f": 3, "v": 174}, {"k": "top top", "f": 3, "v": 173}, {"k": "bahan bahan", "f": 5, "v": 172}, {"k": "panjang lengan", "f": 14, "v": 171}, {"k": "baju per", "f": 4, "v": 171}, {"k": "jeans 26", "f": 3, "v": 171}, {"k": "casual blouse wanita", "f": 11, "v": 170}, {"k": "kemeja wanita s", "f": 18, "v": 168}, {"k": "baju 100 dapat 4", "f": 4, "v": 166}, {"k": "kemeja 90an", "f": 21, "v": 159}, {"k": "katun 30s", "f": 7, "v": 158}, {"k": "baju 2024", "f": 4, "v": 155}, {"k": "jeans 32", "f": 3, "v": 154}, {"k": "kemeja b", "f": 21, "v": 152}, {"k": "jeans kecil", "f": 3, "v": 149}, {"k": "top 100", "f": 3, "v": 148}, {"k": "tanpa kerah", "f": 3, "v": 148}, {"k": "kemeja. wanita", "f": 18, "v": 147}, {"k": "jeans 100cm", "f": 3, "v": 145}, {"k": "style wanita kekinian", "f": 4, "v": 144}, {"k": "v blouse", "f": 57, "v": 143}, {"k": "10pm jeans", "f": 3, "v": 143}, {"k": "kemeja 3d", "f": 21, "v": 139}, {"k": "kemeja 120", "f": 21, "v": 139}, {"k": "casual wanita kekinian", "f": 11, "v": 139}, {"k": "baju 5l", "f": 4, "v": 139}, {"k": "bagian dalam wanita", "f": 42, "v": 138}, {"k": "jeans 34", "f": 3, "v": 138}, {"k": "style kekinian", "f": 5, "v": 135}, {"k": "kemeja 130", "f": 21, "v": 133}, {"k": "jeans 36", "f": 3, "v": 132}, {"k": "wanita katun", "f": 7, "v": 131}, {"k": "jeans 90s", "f": 3, "v": 130}, {"k": "korean style wanita blouse", "f": 5, "v": 129}, {"k": "kemeja 5l", "f": 21, "v": 126}, {"k": "baju 12", "f": 4, "v": 126}, {"k": "blouse korean style kemeja", "f": 3, "v": 126}, {"k": "kemeja terkini", "f": 21, "v": 125}, {"k": "jeans 42", "f": 3, "v": 124}, {"k": "kemeja 100 dapat 3 wanita", "f": 18, "v": 123}, {"k": "baju 30s", "f": 4, "v": 121}, {"k": "kekinian+blouse", "f": 59, "v": 120}, {"k": "kemeja 3 100rb wanita", "f": 18, "v": 118}, {"k": "baju 100 dapat 4 wanita", "f": 4, "v": 118}, {"k": "baju h m", "f": 4, "v": 118}, {"k": "jeans ada", "f": 3, "v": 118}, {"k": "baju 18", "f": 4, "v": 117}, {"k": "blouse 130", "f": 59, "v": 116}, {"k": "kemeja kekinian 2024", "f": 21, "v": 116}, {"k": "korean blouse style", "f": 4, "v": 116}, {"k": "blouse dan kemeja", "f": 21, "v": 115}, {"k": "kemeja 90s", "f": 21, "v": 115}, {"k": "kemeja wanita lengan", "f": 7, "v": 115}, {"k": "korean lengan panjang", "f": 3, "v": 115}, {"k": "blouse kemeja wanita lengan panjang", "f": 6, "v": 114}, {"k": "baju 8", "f": 4, "v": 114}, {"k": "kemeja v wanita", "f": 18, "v": 113}, {"k": "l panjang", "f": 14, "v": 113}, {"k": "kemeja korean wanita", "f": 5, "v": 113}, {"k": "jeans 5pm", "f": 3, "v": 113}, {"k": "kemeja h m", "f": 21, "v": 112}, {"k": "baju 7", "f": 4, "v": 112}, {"k": "jeans 33", "f": 3, "v": 112}, {"k": "kemeja h", "f": 21, "v": 111}, {"k": "blouse rayon wanita motif", "f": 7, "v": 111}, {"k": "k style", "f": 4, "v": 111}, {"k": "dalaman top", "f": 3, "v": 111}, {"k": "model wanita", "f": 3, "v": 111}, {"k": "salur blouse", "f": 3, "v": 111}, {"k": "231 kemeja", "f": 21, "v": 110}, {"k": "lengan panjang wanita kekinian", "f": 12, "v": 110}, {"k": "basic s", "f": 5, "v": 110}, {"k": "baju dan", "f": 4, "v": 110}, {"k": "baju 100 dapat 7 wanita", "f": 4, "v": 110}, {"k": "kekinian korean style", "f": 4, "v": 110}, {"k": "jeans 44", "f": 3, "v": 110}, {"k": "v wanita", "f": 42, "v": 109}, {"k": "kemeja 140", "f": 21, "v": 109}, {"k": "blouse bahan", "f": 5, "v": 109}, {"k": "jeans terkini", "f": 3, "v": 109}, {"k": "jeans s", "f": 3, "v": 109}, {"k": "jeans h", "f": 3, "v": 109}, {"k": "kinan blouse", "f": 59, "v": 108}, {"k": "wanita wanita", "f": 42, "v": 108}, {"k": "kemeja 100 dapat 4 wanita", "f": 18, "v": 108}, {"k": "blouse kemeja wanita kekinian", "f": 18, "v": 108}, {"k": "lengan panjang 24s", "f": 14, "v": 108}, {"k": "motif rayon", "f": 7, "v": 108}, {"k": "kami blouse", "f": 59, "v": 107}, {"k": "korean blouse lengan panjang", "f": 3, "v": 107}, {"k": "lengan kerut", "f": 3, "v": 107}, {"k": "blouse 110", "f": 59, "v": 106}, {"k": "kemeja 6xl", "f": 21, "v": 106}, {"k": "tanpa lengan wanita", "f": 16, "v": 106}, {"k": "blouse l", "f": 59, "v": 105}, {"k": "dalaman lengan", "f": 21, "v": 105}, {"k": "kemeja 3 4", "f": 21, "v": 104}, {"k": "lengan wanita", "f": 16, "v": 104}, {"k": "selana panjang wanita", "f": 12, "v": 104}, {"k": "blouse rayon motif wanita", "f": 7, "v": 104}, {"k": "korean wanita", "f": 7, "v": 104}, {"k": "rayon panjang", "f": 6, "v": 104}, {"k": "jeans 35", "f": 3, "v": 104}, {"k": "j jeans", "f": 3, "v": 104}, {"k": "blouse blouse", "f": 59, "v": 103}, {"k": "kemeja kemeja", "f": 21, "v": 103}, {"k": "kemeja 3 4 wanita", "f": 18, "v": 103}, {"k": "blouse korean style kekinian", "f": 5, "v": 103}, {"k": "fit l", "f": 4, "v": 103}, {"k": "fit o", "f": 4, "v": 103}, {"k": "blouse 140", "f": 59, "v": 102}, {"k": "blouse 5l", "f": 59, "v": 102}, {"k": "kekinian wanita", "f": 44, "v": 102}, {"k": "kemeja h n m", "f": 21, "v": 102}, {"k": "premium wanita", "f": 5, "v": 102}, {"k": "kerah v wanita", "f": 3, "v": 102}, {"k": "90s jeans", "f": 3, "v": 102}, {"k": "w jeans", "f": 3, "v": 102}, {"k": "saya jeans", "f": 3, "v": 102}, {"k": "blouse m", "f": 59, "v": 101}, {"k": "delia blouse", "f": 59, "v": 101}, {"k": "kemeja wanita m", "f": 18, "v": 101}, {"k": "rayon adem", "f": 5, "v": 101}, {"k": "baju 3 4", "f": 4, "v": 101}, {"k": "bila top blouse", "f": 3, "v": 101}, {"k": "jeans 27", "f": 3, "v": 101}],
+  kulot: [{"k": "celana wanita", "f": 40, "v": 5133461}, {"k": "celana", "f": 48, "v": 3926631}, {"k": "celana jeans wanita", "f": 4, "v": 3272531}, {"k": "celana kulot wanita kekinian", "f": 36, "v": 2128368}, {"k": "celana kulot wanita", "f": 36, "v": 1302637}, {"k": "celana panjang wanita", "f": 16, "v": 1271848}, {"k": "jeans wanita", "f": 4, "v": 1113722}, {"k": "jeans", "f": 7, "v": 1010090}, {"k": "celana highwaist wanita", "f": 21, "v": 863871}, {"k": "celana dalam", "f": 48, "v": 841746}, {"k": "celana kulot", "f": 44, "v": 707859}, {"k": "celana dalam wanita", "f": 40, "v": 671693}, {"k": "kulot wanita", "f": 41, "v": 458241}, {"k": "kulot", "f": 54, "v": 373466}, {"k": "kulot wanita premium", "f": 10, "v": 328498}, {"k": "celana wanita kekinian korean style", "f": 3, "v": 261581}, {"k": "jumbo", "f": 13, "v": 260454}, {"k": "celana kulot wanita jumbo", "f": 11, "v": 245193}, {"k": "celana baggy", "f": 4, "v": 215073}, {"k": "celana kulot jeans wanita", "f": 4, "v": 184188}, {"k": "celana kerja wanita", "f": 3, "v": 183283}, {"k": "loose pants", "f": 18, "v": 181986}, {"k": "celana wanita kekinian", "f": 40, "v": 177403}, {"k": "loose pants wanita", "f": 14, "v": 151454}, {"k": "celana bahan wanita", "f": 5, "v": 148428}, {"k": "celana wanita jumbo", "f": 11, "v": 146109}, {"k": "kulot jeans wanita", "f": 4, "v": 133369}, {"k": "oro pants", "f": 4, "v": 132691}, {"k": "celana wanita jeans", "f": 4, "v": 130608}, {"k": "jeans wanita kekinian", "f": 4, "v": 130379}, {"k": "celana kulot jeans", "f": 7, "v": 127928}, {"k": "celana bahan", "f": 6, "v": 123100}, {"k": "celana kulot highwaist", "f": 24, "v": 110863}, {"k": "kulot wanita jumbo", "f": 11, "v": 109617}, {"k": "dalaman wanita", "f": 45, "v": 109563}, {"k": "celana jeans wanita kekinian", "f": 4, "v": 100614}, {"k": "celana wanita kulot", "f": 36, "v": 93530}, {"k": "baggy", "f": 4, "v": 92295}, {"k": "celana casual", "f": 4, "v": 88104}, {"k": "kulot jeans", "f": 7, "v": 79934}, {"k": "celana wanita highwaist", "f": 21, "v": 79635}, {"k": "celana jumbo", "f": 12, "v": 78327}, {"k": "celana kantor wanita", "f": 9, "v": 66581}, {"k": "celana kulot jumbo", "f": 12, "v": 66089}, {"k": "celana loose pants wanita", "f": 14, "v": 64075}, {"k": "loose jeans", "f": 4, "v": 61392}, {"k": "jeans kulot wanita", "f": 4, "v": 58790}, {"k": "highwaist jeans wanita", "f": 3, "v": 58080}, {"k": "highwaist pants", "f": 21, "v": 54438}, {"k": "celana jeans kulot wanita", "f": 4, "v": 54258}, {"k": "celana kulot wanita premium", "f": 9, "v": 53859}, {"k": "celana korean style wanita", "f": 3, "v": 51363}, {"k": "celana kulot wanita highwaist", "f": 19, "v": 50834}, {"k": "kulot rayon", "f": 4, "v": 50563}, {"k": "kulot rayon wanita", "f": 4, "v": 50428}, {"k": "celana highwaist wanita jeans", "f": 3, "v": 48527}, {"k": "celana pants wanita", "f": 26, "v": 47567}, {"k": "celana scuba", "f": 3, "v": 46012}, {"k": "celana jumbo wanita", "f": 11, "v": 45979}, {"k": "loose jeans highwaist", "f": 4, "v": 43420}, {"k": "flare pants", "f": 3, "v": 42162}, {"k": "celana jeans kulot", "f": 7, "v": 41350}, {"k": "celana wanita panjang", "f": 16, "v": 40387}, {"k": "celana dalam wanita jumbo", "f": 11, "v": 38872}, {"k": "jeans kulot", "f": 7, "v": 36658}, {"k": "celana korean style", "f": 3, "v": 36491}, {"k": "kulot premium", "f": 12, "v": 36386}, {"k": "celana highwaist", "f": 26, "v": 36258}, {"k": "celana scuba wanita", "f": 3, "v": 35721}, {"k": "celana dalam jumbo", "f": 12, "v": 35451}, {"k": "flare", "f": 3, "v": 34740}, {"k": "kulot jumbo", "f": 13, "v": 34183}, {"k": "celana kulot highwaist jeans", "f": 5, "v": 31354}, {"k": "celana formal wanita", "f": 7, "v": 30061}, {"k": "celana panjang wanita kekinian", "f": 16, "v": 29818}, {"k": "celana jeans kulot wanita kekinian", "f": 4, "v": 29510}, {"k": "jeans wanita highwaist", "f": 3, "v": 29324}, {"k": "jeans kulot highwaist wanita", "f": 3, "v": 28944}, {"k": "korean style", "f": 3, "v": 28142}, {"k": "trousers pants", "f": 6, "v": 26130}, {"k": "celana highwaist wanita jumbo", "f": 6, "v": 25095}, {"k": "celana 7/8", "f": 48, "v": 24469}, {"k": "celana 3/4 wanita", "f": 40, "v": 24093}, {"k": "80s style", "f": 3, "v": 24091}, {"k": "kulot scuba", "f": 3, "v": 23789}, {"k": "celana bahan wanita highwaist", "f": 4, "v": 22698}, {"k": "celana kekinian", "f": 48, "v": 22435}, {"k": "celana kulot scuba", "f": 3, "v": 22205}, {"k": "celana 7 8 wanita", "f": 40, "v": 21732}, {"k": "celana oro pants", "f": 3, "v": 21201}, {"k": "celana motif", "f": 3, "v": 21050}, {"k": "celana 3/4", "f": 50, "v": 20691}, {"k": "celana loose pants", "f": 18, "v": 19795}, {"k": "celana loose", "f": 24, "v": 18640}, {"k": "pants wanita", "f": 27, "v": 18339}, {"k": "wide leg", "f": 3, "v": 18291}, {"k": "celana pants", "f": 31, "v": 17512}, {"k": "highwaist", "f": 31, "v": 15980}, {"k": "korean style wanita", "f": 3, "v": 14687}, {"k": "celana jeans wanita highwaist", "f": 3, "v": 14440}, {"k": "celana kulot premium", "f": 10, "v": 14248}, {"k": "scuba", "f": 3, "v": 14214}, {"k": "pants highwaist", "f": 21, "v": 14025}, {"k": "kulot highwaist", "f": 29, "v": 13867}, {"k": "motif", "f": 4, "v": 13711}, {"k": "celana wide leg wanita", "f": 3, "v": 13347}, {"k": "celana 3/4 wanita jumbo", "f": 11, "v": 13184}, {"k": "bahan", "f": 8, "v": 13090}, {"k": "celana dalaman wanita", "f": 40, "v": 12832}, {"k": "celana scuba 7/8", "f": 3, "v": 12597}, {"k": "celana kulot wanita jeans", "f": 4, "v": 12521}, {"k": "celana jeans kekinian", "f": 7, "v": 12364}, {"k": "pengecil celana", "f": 48, "v": 12172}, {"k": "celana wanita korean style", "f": 3, "v": 12131}, {"k": "kulot wanita highwaist", "f": 20, "v": 12113}, {"k": "celana panjang kulot wanita", "f": 15, "v": 11960}, {"k": "celana motif wanita", "f": 3, "v": 11807}, {"k": "loose pants wanita jumbo", "f": 5, "v": 11545}, {"k": "celana jeans wanita kulot", "f": 4, "v": 11440}, {"k": "formal", "f": 10, "v": 11415}, {"k": "korean", "f": 8, "v": 10958}, {"k": "celana premium wanita", "f": 9, "v": 10864}, {"k": "celana pants highwaist wanita", "f": 13, "v": 10512}, {"k": "celana kekinian wanita", "f": 40, "v": 10338}, {"k": "celana kulot highwaist wanita", "f": 19, "v": 10188}, {"k": "celana 7 8 wanita jumbo", "f": 11, "v": 10030}, {"k": "kulot wanita kekinian", "f": 41, "v": 10011}, {"k": "celana kulot panjang", "f": 14, "v": 9749}, {"k": "jeans celana wanita", "f": 4, "v": 9412}, {"k": "celana wanita kerja", "f": 3, "v": 8884}, {"k": "celana jeans 7/8", "f": 7, "v": 8815}, {"k": "celana wide leg", "f": 3, "v": 8763}, {"k": "kulot motif", "f": 3, "v": 8482}, {"k": "celana panjang highwaist wanita", "f": 11, "v": 8137}, {"k": "celana 10k", "f": 48, "v": 8041}, {"k": "celana panjang kulot", "f": 16, "v": 8026}, {"k": "celana jeans highwaist", "f": 5, "v": 7939}, {"k": "celana wanita 7/8", "f": 40, "v": 7781}, {"k": "trousers", "f": 6, "v": 7552}, {"k": "celana saya jumbo", "f": 12, "v": 7509}, {"k": "loose pants jumbo", "f": 5, "v": 7437}, {"k": "celana kulot scuba wanita", "f": 3, "v": 7347}, {"k": "celana panjang wanita kulot", "f": 15, "v": 7342}, {"k": "celana kulot highwaist premium", "f": 7, "v": 6944}, {"k": "size m", "f": 7, "v": 6937}, {"k": "kulot scuba wanita", "f": 3, "v": 6791}, {"k": "kulot highwaist premium", "f": 8, "v": 6763}, {"k": "setelah wanita", "f": 45, "v": 6737}, {"k": "celana kantoran wanita", "f": 9, "v": 6605}, {"k": "trouser", "f": 5, "v": 6536}, {"k": "kulot highwaist loose pants", "f": 9, "v": 6451}, {"k": "kulot 7/8", "f": 54, "v": 6410}, {"k": "scuba celana wanita", "f": 3, "v": 6369}, {"k": "celana jeans 7 8 wanita", "f": 4, "v": 6324}, {"k": "jeans loose", "f": 4, "v": 6238}, {"k": "celana kulot 3/4 wanita", "f": 36, "v": 5902}, {"k": "celana kulot kerja", "f": 3, "v": 5818}, {"k": "celana kulot panjang wanita", "f": 13, "v": 5760}, {"k": "size s", "f": 7, "v": 5690}, {"k": "celana kulot premium wanita", "f": 9, "v": 5682}, {"k": "highwaist jeans", "f": 5, "v": 5653}, {"k": "celana palazzo wanita", "f": 6, "v": 5552}, {"k": "celana kulot jeans wanita kekinian", "f": 4, "v": 5475}, {"k": "celana highwaist wanita kulot", "f": 19, "v": 5394}, {"k": "celana kantoran", "f": 12, "v": 5385}, {"k": "celana dalam wanita premium", "f": 9, "v": 5321}, {"k": "kulot wanita jeans", "f": 4, "v": 5273}, {"k": "celana kulot kekinian", "f": 44, "v": 5152}, {"k": "celana kulot bahan", "f": 6, "v": 5126}, {"k": "kulot motif wanita", "f": 3, "v": 5109}, {"k": "kulot premium wanita", "f": 10, "v": 5061}, {"k": "celana dalaman", "f": 50, "v": 5048}, {"k": "size l", "f": 7, "v": 5026}, {"k": "celana wanita premium", "f": 9, "v": 5023}, {"k": "kulot jumbo wanita", "f": 11, "v": 5017}, {"k": "celana wanita jumbo kekinian", "f": 11, "v": 4890}, {"k": "celana kekinian wanita korean style", "f": 3, "v": 4829}, {"k": "jeans highwaist", "f": 5, "v": 4738}, {"k": "celana kulot 7/8", "f": 44, "v": 4610}, {"k": "celana wanita bahan", "f": 5, "v": 4481}, {"k": "celana kulot wanita jeans highwaist", "f": 3, "v": 4432}, {"k": "celana jeans 3/4 wanita", "f": 4, "v": 4347}, {"k": "celana wanita scuba", "f": 3, "v": 4336}, {"k": "celana jeans wanita 7/9", "f": 4, "v": 4327}, {"k": "celana jeans highwaist wanita", "f": 3, "v": 4288}, {"k": "celana saya", "f": 48, "v": 4203}, {"k": "leg", "f": 3, "v": 4197}, {"k": "celana.", "f": 48, "v": 4163}, {"k": "style", "f": 3, "v": 4131}, {"k": "celana kulot jumbo wanita", "f": 11, "v": 4120}, {"k": "jeans wanita kulot", "f": 4, "v": 4081}, {"k": "celana wanita kantor", "f": 9, "v": 3952}, {"k": "celana anti kusut", "f": 11, "v": 3886}, {"k": "semi", "f": 3, "v": 3861}, {"k": "kulot wanita premium jumbo", "f": 5, "v": 3815}, {"k": "adem", "f": 5, "v": 3806}, {"k": "celana 7 9 wanita", "f": 40, "v": 3707}, {"k": "celana 7/9", "f": 48, "v": 3682}, {"k": "jeans 7/8", "f": 7, "v": 3524}, {"k": "viona", "f": 3, "v": 3454}, {"k": "celana wanita 3/4", "f": 40, "v": 3416}, {"k": "kulot wanita jumbo kekinian", "f": 11, "v": 3404}, {"k": "celana buat kerja", "f": 3, "v": 3364}, {"k": "celana 7/8 wanita", "f": 40, "v": 3335}, {"k": "celana jeans kulot highwaist", "f": 5, "v": 3310}, {"k": "celana premium", "f": 10, "v": 3259}, {"k": "kulot highwaist jumbo", "f": 6, "v": 3254}, {"k": "bahan celana", "f": 6, "v": 3213}, {"k": "kulot panjang", "f": 19, "v": 3146}, {"k": "celana biasa", "f": 48, "v": 3144}, {"k": "kulot jumbo premium", "f": 5, "v": 3140}, {"k": "kulot kekinian", "f": 54, "v": 3018}, {"k": "kulot panjang wanita", "f": 18, "v": 2979}, {"k": "celana kulot wanita panjang", "f": 15, "v": 2893}, {"k": "celana dalam premium", "f": 10, "v": 2881}, {"k": "kulot pants", "f": 33, "v": 2870}, {"k": "highwaist wanita", "f": 22, "v": 2837}, {"k": "celana jeans wanita 7/8", "f": 4, "v": 2825}, {"k": "celana wanita kulot jeans", "f": 4, "v": 2819}, {"k": "celana wanita pants", "f": 26, "v": 2792}, {"k": "celana bahan kulot", "f": 6, "v": 2729}, {"k": "pants celana wanita", "f": 28, "v": 2672}, {"k": "celana dalam jumbo wanita", "f": 11, "v": 2662}, {"k": "celana loose wanita", "f": 18, "v": 2632}, {"k": "celana dalam panjang", "f": 17, "v": 2607}, {"k": "trousers wanita", "f": 3, "v": 2584}, {"k": "celana buat kerja wanita", "f": 3, "v": 2475}, {"k": "celana kulot highwaist jumbo", "f": 6, "v": 2469}, {"k": "celana loose jeans", "f": 4, "v": 2441}, {"k": "celana saya wanita", "f": 40, "v": 2437}, {"k": "jeans kekinian", "f": 7, "v": 2391}, {"k": "kulot pants wanita", "f": 26, "v": 2289}, {"k": "wanita celana", "f": 40, "v": 2271}, {"k": "celana jeans 7/9", "f": 7, "v": 2269}, {"k": "formal pants", "f": 8, "v": 2265}, {"k": "celana wanita jeans kulot", "f": 4, "v": 2261}, {"k": "selana jeans wanita", "f": 4, "v": 2248}, {"k": "palazzo", "f": 7, "v": 2246}, {"k": "jeans loose highwaist", "f": 4, "v": 2212}, {"k": "celana wanita 7/9", "f": 40, "v": 2209}, {"k": "celana highwaist jeans", "f": 5, "v": 2198}, {"k": "celana kulot 100 dapat 5", "f": 44, "v": 2174}, {"k": "palazzo pants", "f": 7, "v": 2171}, {"k": "celana kulot anti kusut", "f": 11, "v": 2151}, {"k": "celana dalam wanita motif", "f": 3, "v": 2148}, {"k": "celana panjang wanita highwaist", "f": 11, "v": 2115}, {"k": "celana korean", "f": 8, "v": 2110}, {"k": "kulot bahan", "f": 8, "v": 2096}, {"k": "dalaman celana panjang wanita", "f": 18, "v": 2083}, {"k": "celana bahan highwaist wanita", "f": 4, "v": 2059}, {"k": "celana dalam motif", "f": 3, "v": 2028}, {"k": "celana wanita kekinian kulot", "f": 36, "v": 2003}, {"k": "celana kerja kulot", "f": 3, "v": 1982}, {"k": "kulot kerja", "f": 4, "v": 1972}, {"k": "kulot palazzo", "f": 6, "v": 1971}, {"k": "jeans 7 8 wanita", "f": 4, "v": 1964}, {"k": "celana wanita kulot highwaist", "f": 19, "v": 1962}, {"k": "celana kerja formal", "f": 3, "v": 1937}, {"k": "celana kulot wanita scuba", "f": 3, "v": 1935}, {"k": "celana bahan kulot wanita", "f": 5, "v": 1904}, {"k": "dalaman wanita jumbo", "f": 11, "v": 1903}, {"k": "celana palazzo", "f": 7, "v": 1897}, {"k": "celana wanita jumbo highwaist", "f": 6, "v": 1866}, {"k": "celana wanita kekinian jeans", "f": 4, "v": 1866}, {"k": "kulot celana wanita", "f": 38, "v": 1827}, {"k": "kulot loose pants", "f": 18, "v": 1823}, {"k": "jeans 3/4 wanita", "f": 4, "v": 1805}, {"k": "celana p", "f": 48, "v": 1802}, {"k": "jeans celana", "f": 7, "v": 1774}, {"k": "celana bagi pants wanita", "f": 26, "v": 1750}, {"k": "celana panjang kekinian", "f": 17, "v": 1738}, {"k": "style korean", "f": 3, "v": 1733}, {"k": "highwaist loose jeans", "f": 4, "v": 1698}, {"k": "size 40", "f": 7, "v": 1695}, {"k": "highwaist loose pants", "f": 9, "v": 1662}, {"k": "celana wanita kulot jumbo", "f": 11, "v": 1634}, {"k": "celana kulot jumbo premium", "f": 5, "v": 1628}, {"k": "jeans 3/4", "f": 7, "v": 1625}, {"k": "kulot 7 8 wanita", "f": 41, "v": 1616}, {"k": "kulot jumbo premium wanita", "f": 5, "v": 1611}, {"k": "jeans 7/9", "f": 7, "v": 1596}, {"k": "m style", "f": 3, "v": 1596}, {"k": "kulot highwaist wanita", "f": 20, "v": 1560}, {"k": "celana kulot korean style wanita", "f": 3, "v": 1559}, {"k": "celana panjang kantor wanita", "f": 7, "v": 1513}, {"k": "trouser pants", "f": 5, "v": 1503}, {"k": "celana kulot kantor", "f": 11, "v": 1499}, {"k": "celana kulot pants", "f": 28, "v": 1488}, {"k": "celana wanita anti kusut", "f": 8, "v": 1480}, {"k": "style wanita", "f": 3, "v": 1472}, {"k": "celana panjang wanita premium", "f": 3, "v": 1469}, {"k": "kulot 3/4 wanita", "f": 41, "v": 1465}, {"k": "celana kulot 3/4", "f": 44, "v": 1462}, {"k": "dalaman celana", "f": 48, "v": 1457}, {"k": "bagi pants wanita", "f": 27, "v": 1457}, {"k": "anti kusut", "f": 11, "v": 1426}, {"k": "casual celana", "f": 4, "v": 1413}, {"k": "celana dalam wanita 3pcs", "f": 40, "v": 1412}, {"k": "kulot anti kusut", "f": 11, "v": 1405}, {"k": "celana highwaist jeans wanita", "f": 3, "v": 1400}, {"k": "celana panjang dalaman wanita", "f": 18, "v": 1394}, {"k": "celana highwaist jumbo", "f": 6, "v": 1378}, {"k": "celana s", "f": 48, "v": 1292}, {"k": "celana trousers wanita", "f": 3, "v": 1287}, {"k": "pants wanita highwaist", "f": 14, "v": 1278}, {"k": "celana c", "f": 48, "v": 1277}, {"k": "celana wanita highwaist jumbo", "f": 6, "v": 1273}, {"k": "celana biasa wanita", "f": 40, "v": 1257}, {"k": "celana wanita highwaist kulot", "f": 19, "v": 1246}, {"k": "celana wide", "f": 3, "v": 1238}, {"k": "casual pants", "f": 4, "v": 1237}, {"k": "celana l", "f": 48, "v": 1236}, {"k": "celana bahan highwaist", "f": 5, "v": 1212}, {"k": "celana trousers", "f": 6, "v": 1203}, {"k": "celana kulot kantor wanita", "f": 8, "v": 1182}, {"k": "kulot kerja wanita", "f": 3, "v": 1159}, {"k": "celana panjang 100cm", "f": 17, "v": 1150}, {"k": "celana 3", "f": 48, "v": 1143}, {"k": "celana trouser", "f": 5, "v": 1142}, {"k": "celana panjang formal wanita", "f": 4, "v": 1133}, {"k": "casual wanita", "f": 4, "v": 1124}, {"k": "kulot wanita scuba", "f": 3, "v": 1122}, {"k": "celana dalam wanita 6pcs", "f": 40, "v": 1106}, {"k": "wanita korean style", "f": 3, "v": 1079}, {"k": "size 42", "f": 7, "v": 1071}, {"k": "celana wanita korean", "f": 8, "v": 1066}, {"k": "loose pants trousers wanita", "f": 3, "v": 1059}, {"k": "celana bahan loose", "f": 4, "v": 1053}, {"k": "celana dalam celana", "f": 48, "v": 1045}, {"k": "highwaist pants wanita", "f": 14, "v": 1039}, {"k": "celana a", "f": 48, "v": 1038}, {"k": "size 44", "f": 7, "v": 1038}, {"k": "celana 7 9 wanita jumbo", "f": 11, "v": 1036}, {"k": "celana 1/4 wanita", "f": 40, "v": 1029}, {"k": "setelah rayon", "f": 4, "v": 1024}, {"k": "celana style", "f": 3, "v": 1004}, {"k": "celana kulot loose pants", "f": 18, "v": 988}, {"k": "celana wanita kekinian jumbo", "f": 11, "v": 987}, {"k": "size 6", "f": 7, "v": 981}, {"k": "celana kulot 7 8 wanita jumbo", "f": 11, "v": 974}, {"k": "celana panjang premium", "f": 3, "v": 965}, {"k": "celana panjang wanita kantoran", "f": 7, "v": 963}, {"k": "kulot 3/4", "f": 54, "v": 927}, {"k": "selana wanita", "f": 45, "v": 916}, {"k": "celana kulot 7 8 wanita", "f": 36, "v": 907}, {"k": "celana kulot formal", "f": 12, "v": 894}, {"k": "celana 3 4", "f": 48, "v": 890}, {"k": "kulot wanita jumbo premium", "f": 5, "v": 886}, {"k": "dalam wanita", "f": 45, "v": 881}, {"k": "setelah jumbo", "f": 13, "v": 879}, {"k": "kulot adem", "f": 5, "v": 879}, {"k": "celana kerja formal wanita", "f": 3, "v": 874}, {"k": "celana panjang dalaman", "f": 19, "v": 863}, {"k": "pants jumbo", "f": 6, "v": 843}, {"k": "loose pants highwaist", "f": 9, "v": 840}, {"k": "celana dalam panjang wanita", "f": 18, "v": 839}, {"k": "highwaist kulot", "f": 29, "v": 838}, {"k": "celana kerja wanita kulot", "f": 3, "v": 832}, {"k": "celana dalam 5l", "f": 48, "v": 831}, {"k": "celana 3/4 wanita jeans", "f": 4, "v": 831}, {"k": "kulot wide leg", "f": 3, "v": 823}, {"k": "celana kulot korean style", "f": 3, "v": 822}, {"k": "kulot loose pants highwaist", "f": 9, "v": 818}, {"k": "celana 35", "f": 48, "v": 810}, {"k": "celana kulot jumbo wanita kekinian", "f": 11, "v": 796}, {"k": "loose pants trousers", "f": 6, "v": 780}, {"k": "kulot highwaist jeans", "f": 5, "v": 778}, {"k": "celana wanita loose pants highwaist", "f": 7, "v": 752}, {"k": "celana formal wanita highwaist", "f": 5, "v": 747}, {"k": "celana highwaist loose pants", "f": 9, "v": 741}, {"k": "celana style korean wanita", "f": 3, "v": 740}, {"k": "kulot korean style", "f": 3, "v": 739}, {"k": "celana jeans kekinian wanita", "f": 4, "v": 729}, {"k": "kulot formal", "f": 10, "v": 722}, {"k": "celana m", "f": 48, "v": 721}, {"k": "celana highwaist kulot", "f": 24, "v": 714}, {"k": "kemerja wanita", "f": 3, "v": 712}, {"k": "pants kulot", "f": 33, "v": 697}, {"k": "wanita jumbo", "f": 11, "v": 696}, {"k": "scuba celana", "f": 3, "v": 687}, {"k": "3/4 pants", "f": 36, "v": 683}, {"k": "kusut", "f": 11, "v": 677}, {"k": "korean pants wanita", "f": 6, "v": 674}, {"k": "celana celana", "f": 48, "v": 673}, {"k": "kulot 7 8 wanita jumbo", "f": 11, "v": 668}, {"k": "celana 100 dapat 3", "f": 48, "v": 667}, {"k": "celana b", "f": 48, "v": 664}, {"k": "kulot 100 dapat 3", "f": 54, "v": 658}, {"k": "celana panjang casual wanita", "f": 4, "v": 658}, {"k": "celana jeans wanita 3/4", "f": 4, "v": 650}, {"k": "jeans wanita 7/8", "f": 4, "v": 644}, {"k": "baggy kulot", "f": 3, "v": 644}, {"k": "celana jumbo wanita kulot", "f": 11, "v": 643}, {"k": "celana wanita terkini", "f": 40, "v": 641}, {"k": "korean pants", "f": 6, "v": 635}, {"k": "celana 7 8", "f": 48, "v": 627}, {"k": "kulot wanita panjang", "f": 16, "v": 620}, {"k": "highwaist jumbo", "f": 6, "v": 618}, {"k": "celana panjang highwaist", "f": 12, "v": 614}, {"k": "celana pants wanita jumbo", "f": 6, "v": 608}, {"k": "celana buat wanita", "f": 40, "v": 604}, {"k": "sempat wanita", "f": 45, "v": 601}, {"k": "jeans kekinian wanita", "f": 4, "v": 599}, {"k": "celana kulot jeans highwaist wanita", "f": 3, "v": 598}, {"k": "celana saya wanita jumbo", "f": 11, "v": 590}, {"k": "celana kulot jeans highwaist", "f": 5, "v": 589}, {"k": "trousers pants wanita", "f": 3, "v": 587}, {"k": "celana bermotif", "f": 3, "v": 585}, {"k": "highwaist pants loose", "f": 9, "v": 572}, {"k": "celana kecil", "f": 48, "v": 566}, {"k": "scuba kulot", "f": 3, "v": 560}, {"k": "celana d", "f": 48, "v": 554}, {"k": "dalaman panjang", "f": 22, "v": 554}, {"k": "highwaist loose", "f": 15, "v": 554}, {"k": "dalaman panjang wanita", "f": 21, "v": 551}, {"k": "jumbo wanita", "f": 11, "v": 541}, {"k": "size 34", "f": 7, "v": 541}, {"k": "wanita panjang", "f": 19, "v": 536}, {"k": "celana 7 8 wanita jeans", "f": 4, "v": 531}, {"k": "panjang wanita", "f": 19, "v": 525}, {"k": "celana dalam wanita 5l", "f": 40, "v": 523}, {"k": "kulot loose", "f": 24, "v": 518}, {"k": "loose pants anti kusut", "f": 10, "v": 501}, {"k": "celana highwaist kulot wanita", "f": 19, "v": 500}, {"k": "celana wanita panjang 110cm", "f": 16, "v": 497}, {"k": "celana h", "f": 48, "v": 494}, {"k": "celana dalaman wanita jumbo", "f": 11, "v": 489}, {"k": "size 3", "f": 7, "v": 488}, {"k": "v premium", "f": 12, "v": 487}, {"k": "kulot wanita korean style", "f": 3, "v": 487}, {"k": "trousers wanita highwaist", "f": 3, "v": 487}, {"k": "kulot pants highwaist", "f": 21, "v": 486}, {"k": "formal wanita", "f": 7, "v": 482}, {"k": "wanita korean", "f": 8, "v": 481}, {"k": "selana kulot", "f": 54, "v": 480}, {"k": "celana panjang 100", "f": 17, "v": 469}, {"k": "kulot kantor", "f": 11, "v": 467}, {"k": "celana bahan wanita kekinian", "f": 5, "v": 457}, {"k": "dalaman jumbo", "f": 13, "v": 452}, {"k": "celana dalam wanita celana", "f": 40, "v": 448}, {"k": "celana dalam 6l", "f": 48, "v": 447}, {"k": "celana dalam 4l", "f": 48, "v": 446}, {"k": "celana kekinian wanita jumbo", "f": 11, "v": 446}, {"k": "celana dalam 3xl", "f": 48, "v": 442}, {"k": "celana dalaman jumbo", "f": 12, "v": 441}, {"k": "size 30", "f": 7, "v": 430}, {"k": "celana. wanita", "f": 40, "v": 426}, {"k": "celana jumbo highwaist wanita jumbo", "f": 6, "v": 425}, {"k": "jeans kulot wanita kekinian", "f": 4, "v": 419}, {"k": "celana dalam wanita 4l", "f": 40, "v": 414}, {"k": "loose pants jumbo wanita", "f": 5, "v": 414}, {"k": "celana dalam 4xl", "f": 48, "v": 412}, {"k": "loose pants kulot", "f": 18, "v": 409}, {"k": "size 7", "f": 7, "v": 408}, {"k": "celana dalam l", "f": 48, "v": 398}, {"k": "celana wanita kekinian highwaist", "f": 21, "v": 398}, {"k": "celana 3 4 wanita jumbo", "f": 11, "v": 397}, {"k": "kulot jumbo highwaist", "f": 6, "v": 397}, {"k": "celana kulot korean", "f": 8, "v": 394}, {"k": "celana wanita jumbo 7/8", "f": 11, "v": 392}, {"k": "size 18", "f": 7, "v": 390}, {"k": "celana wanita panjang kekinian", "f": 16, "v": 389}, {"k": "rayon wanita", "f": 4, "v": 389}, {"k": "kulot 100 dapat 5", "f": 54, "v": 387}, {"k": "wide kulot", "f": 4, "v": 375}, {"k": "celana 5xl", "f": 48, "v": 373}, {"k": "celana kekinian jumbo", "f": 12, "v": 372}, {"k": "dalaman celana wanita", "f": 42, "v": 371}, {"k": "celana wanita jeans kekinian", "f": 4, "v": 371}, {"k": "celana pants jumbo", "f": 6, "v": 359}, {"k": "celana kantor highwaist", "f": 7, "v": 352}, {"k": "celana jumbo kekinian", "f": 12, "v": 351}, {"k": "pants l", "f": 36, "v": 350}, {"k": "pants kulot wanita", "f": 24, "v": 345}, {"k": "size 32", "f": 7, "v": 344}, {"k": "celana dalam premium wanita", "f": 9, "v": 341}, {"k": "kulot 105cm wanita", "f": 41, "v": 337}, {"k": "celana pants kulot", "f": 28, "v": 336}, {"k": "celana highwaist premium", "f": 7, "v": 332}, {"k": "celana scuba saya", "f": 3, "v": 329}, {"k": "setelah celana", "f": 48, "v": 328}, {"k": "celana jumbo wanita kekinian", "f": 11, "v": 328}, {"k": "celana wanita jumbo 100kg", "f": 11, "v": 325}, {"k": "panjang panjang", "f": 20, "v": 323}, {"k": "highwaist kulot jeans", "f": 5, "v": 321}, {"k": "celana celana panjang wanita", "f": 16, "v": 320}, {"k": "kulot jeans highwaist", "f": 5, "v": 317}, {"k": "jeans 7 9 wanita", "f": 4, "v": 315}, {"k": "jeans highwaist loose", "f": 4, "v": 315}, {"k": "celana panjang pants wanita", "f": 12, "v": 314}, {"k": "celana terkini", "f": 48, "v": 313}, {"k": "size 16", "f": 7, "v": 312}, {"k": "celana dalam highwaist wanita", "f": 21, "v": 304}, {"k": "wanita kekinian korean style", "f": 3, "v": 302}, {"k": "2me style", "f": 3, "v": 302}, {"k": "celana panjang saya", "f": 17, "v": 300}, {"k": "celana 3/8 wanita kekinian", "f": 40, "v": 295}, {"k": "2023 jeans", "f": 7, "v": 286}, {"k": "celana 100cm", "f": 48, "v": 285}, {"k": "celana 3r wanita jumbo", "f": 11, "v": 284}, {"k": "pants wanita jumbo", "f": 6, "v": 283}, {"k": "celana 7", "f": 48, "v": 281}, {"k": "celana 3r", "f": 48, "v": 281}, {"k": "celana dalam 3l", "f": 48, "v": 280}, {"k": "wanita premium", "f": 10, "v": 280}, {"k": "celana kulot loose", "f": 24, "v": 277}, {"k": "celana trouser wanita", "f": 4, "v": 277}, {"k": "celana saja", "f": 48, "v": 274}, {"k": "celana highwaist jumbo wanita", "f": 6, "v": 273}, {"k": "jumbo pants", "f": 6, "v": 268}, {"k": "celana 105cm", "f": 48, "v": 267}, {"k": "celana wanita saya", "f": 40, "v": 266}, {"k": "m celana", "f": 48, "v": 265}, {"k": "kulot biasa", "f": 54, "v": 264}, {"k": "celana size s", "f": 6, "v": 264}, {"k": "celana 3 4 wanita jeans", "f": 4, "v": 264}, {"k": "celana 4xl", "f": 48, "v": 262}, {"k": "kulot panjang 105cm", "f": 17, "v": 261}, {"k": "celana dalam wanita 3xl", "f": 40, "v": 252}, {"k": "trousers loose pants", "f": 6, "v": 250}, {"k": "celana dalam wanita jumbo 6l", "f": 11, "v": 248}, {"k": "kulot 90cm", "f": 54, "v": 246}, {"k": "selana kulot wanita", "f": 41, "v": 245}, {"k": "celana dalam biasa", "f": 48, "v": 243}, {"k": "celana style wanita", "f": 3, "v": 242}, {"k": "24s premium", "f": 12, "v": 240}, {"k": "celana kulot panjang 100cm wanita", "f": 13, "v": 234}, {"k": "loose trousers", "f": 6, "v": 234}, {"k": "celana dalam wanita korean style", "f": 3, "v": 229}, {"k": "pants kulot highwaist", "f": 19, "v": 224}, {"k": "size 9", "f": 7, "v": 224}, {"k": "selana dalam wanita", "f": 45, "v": 223}, {"k": "celana korean pants wanita", "f": 6, "v": 223}, {"k": "celana dalam wanita 6l", "f": 40, "v": 222}, {"k": "pants s", "f": 36, "v": 220}, {"k": "celana kulot pants wanita", "f": 23, "v": 220}, {"k": "style korean wanita", "f": 3, "v": 219}, {"k": "size 26", "f": 7, "v": 218}, {"k": "kulot jeans kekinian", "f": 7, "v": 218}, {"k": "celana jumbo premium", "f": 5, "v": 218}, {"k": "kulot wanita panjang 110cm", "f": 16, "v": 217}, {"k": "celana kulot size s", "f": 6, "v": 217}, {"k": "kemana wanita", "f": 45, "v": 216}, {"k": "size kecil", "f": 7, "v": 216}, {"k": "formal pants wanita", "f": 5, "v": 215}, {"k": "kulot 7/8 wanita", "f": 41, "v": 214}, {"k": "celana kulot casual", "f": 4, "v": 214}, {"k": "perpanjangan", "f": 20, "v": 212}, {"k": "celana kulot highwaist jeans wanita", "f": 3, "v": 212}, {"k": "celana wanita kulot kekinian", "f": 36, "v": 211}, {"k": "celana korean wanita", "f": 8, "v": 211}, {"k": "celana 3xl", "f": 48, "v": 210}, {"k": "kantoran", "f": 12, "v": 210}, {"k": "celana wanita jeans highwaist jeans", "f": 3, "v": 206}, {"k": "kulot panjang 110cm", "f": 17, "v": 203}, {"k": "celana kulot jumbo highwaist", "f": 6, "v": 202}, {"k": "celana wanita panjang 100cm", "f": 16, "v": 199}, {"k": "celana kantor formal wanita", "f": 5, "v": 199}, {"k": "highwaist jeans kulot", "f": 5, "v": 199}, {"k": "kulot 105cm", "f": 54, "v": 196}, {"k": "celana pants kulot wanita", "f": 23, "v": 196}, {"k": "celana bagi pants wanita jumbo", "f": 6, "v": 194}, {"k": "celana 7 9 wanita jeans", "f": 4, "v": 194}, {"k": "pants highwaist wanita", "f": 14, "v": 193}, {"k": "celana highwaist premium wanita", "f": 6, "v": 192}, {"k": "celana highwaist wanita kulot jeans", "f": 3, "v": 191}, {"k": "celana 100 dapat 5", "f": 48, "v": 190}, {"k": "highwaist pants jumbo", "f": 3, "v": 190}, {"k": "size 12", "f": 7, "v": 189}, {"k": "3/4 jeans", "f": 7, "v": 189}, {"k": "kulot wanita anti kusut", "f": 8, "v": 188}, {"k": "scuba kulot wanita", "f": 3, "v": 185}, {"k": "celana loose highwaist", "f": 15, "v": 184}, {"k": "jeans wanita kulot highwaist", "f": 3, "v": 184}, {"k": "kulot wanita highwaist jumbo", "f": 6, "v": 181}, {"k": "wanita style", "f": 3, "v": 181}, {"k": "celana highwaist loose jeans", "f": 4, "v": 180}, {"k": "celana kulot 3 4 wanita", "f": 36, "v": 179}, {"k": "celana kulot highwaist wanita jeans", "f": 3, "v": 176}, {"k": "celana dalam wanita 3l", "f": 40, "v": 175}, {"k": "size 2", "f": 7, "v": 175}, {"k": "jeans 38", "f": 7, "v": 174}, {"k": "bahan bahan", "f": 8, "v": 172}, {"k": "size 27", "f": 7, "v": 172}, {"k": "celana size 26", "f": 6, "v": 172}, {"k": "loose kulot", "f": 24, "v": 171}, {"k": "jeans 26", "f": 7, "v": 171}, {"k": "pants jumbo wanita", "f": 6, "v": 171}, {"k": "highwaist kulot jeans wanita", "f": 3, "v": 171}, {"k": "celana dalam wanita l", "f": 40, "v": 170}, {"k": "celana wanita 7 8", "f": 40, "v": 169}, {"k": "celana dalam wanita 4xl", "f": 40, "v": 169}, {"k": "kulot bahan wanita", "f": 7, "v": 164}, {"k": "flare pants highwaist", "f": 3, "v": 163}, {"k": "celana panjang wanita 2024", "f": 16, "v": 162}, {"k": "celana kulot jeans kekinian", "f": 7, "v": 161}, {"k": "casual formal", "f": 4, "v": 160}, {"k": "bagi pants", "f": 36, "v": 159}, {"k": "scuba wanita", "f": 3, "v": 158}, {"k": "celana kulot 7 8", "f": 44, "v": 157}, {"k": "celana dalam wanita biasa", "f": 40, "v": 157}, {"k": "palazzo kulot", "f": 6, "v": 157}, {"k": "kerja wanita", "f": 3, "v": 156}, {"k": "kulot dalaman", "f": 56, "v": 154}, {"k": "jeans 32", "f": 7, "v": 154}, {"k": "kulot terkini", "f": 54, "v": 153}, {"k": "depan jeans wanita", "f": 4, "v": 153}, {"k": "trouser wanita", "f": 4, "v": 153}, {"k": "celana yang", "f": 48, "v": 152}, {"k": "pants premium", "f": 7, "v": 151}, {"k": "pants highwaist jumbo", "f": 3, "v": 151}, {"k": "kulot 4 style", "f": 3, "v": 150}, {"k": "celana 3 4 wanita", "f": 40, "v": 149}, {"k": "jeans kecil", "f": 7, "v": 149}, {"k": "kulot wanita jeans kekinian", "f": 4, "v": 149}, {"k": "celana kulot highwaist loose pants", "f": 9, "v": 147}, {"k": "jeans 100cm", "f": 7, "v": 145}, {"k": "style wanita kekinian", "f": 3, "v": 144}, {"k": "celana kulot terkini", "f": 44, "v": 143}, {"k": "10pm jeans", "f": 7, "v": 143}, {"k": "celana loose pants highwaist", "f": 9, "v": 142}, {"k": "celana pants wanita kekinian", "f": 26, "v": 141}, {"k": "celana wanita saya jumbo", "f": 11, "v": 140}, {"k": "celana dalam wanita jumbo 5l", "f": 11, "v": 140}, {"k": "bagi pants wanita premium", "f": 5, "v": 140}, {"k": "celana 5pm wanita", "f": 40, "v": 139}, {"k": "trouser pants wanita", "f": 4, "v": 139}, {"k": "casual wanita kekinian", "f": 4, "v": 139}, {"k": "bagian dalam wanita", "f": 45, "v": 138}, {"k": "celana kulot panjang 105cm", "f": 14, "v": 138}, {"k": "jeans 34", "f": 7, "v": 138}, {"k": "celana size", "f": 6, "v": 138}, {"k": "celana jeans wanita kekinian 2023", "f": 4, "v": 138}, {"k": "kulot panjang 90", "f": 17, "v": 137}, {"k": "celana 3r jumbo", "f": 12, "v": 137}, {"k": "kulot casual", "f": 6, "v": 137}, {"k": "celana jeans wanita kekinian 2024", "f": 4, "v": 137}, {"k": "l celana", "f": 48, "v": 136}, {"k": "loose jumbo", "f": 6, "v": 135}, {"k": "style kekinian", "f": 3, "v": 135}, {"k": "celana panjang 100cm wanita", "f": 16, "v": 134}, {"k": "celana bahan 7 8 wanita", "f": 5, "v": 134}, {"k": "celana kulot panjang 90cm", "f": 14, "v": 133}, {"k": "premium pants", "f": 7, "v": 133}, {"k": "celana jeans 7 9 wanita kekinian", "f": 4, "v": 133}, {"k": "celana panjang wanita saya", "f": 16, "v": 132}, {"k": "celana kulot panjang 100cm", "f": 14, "v": 132}, {"k": "jeans 36", "f": 7, "v": 132}, {"k": "kulot jumbo wanita premium", "f": 5, "v": 132}, {"k": "pants jumbo highwaist", "f": 3, "v": 132}, {"k": "kulot wanita jeans highwaist", "f": 3, "v": 132}, {"k": "pants wanita kekinian", "f": 27, "v": 131}, {"k": "kulot kekinian wanita premium", "f": 10, "v": 130}, {"k": "jeans 90s", "f": 7, "v": 130}, {"k": "celana 8 9 wanita", "f": 40, "v": 129}, {"k": "highwaist trousers", "f": 4, "v": 129}, {"k": "kulot 100cm", "f": 54, "v": 128}, {"k": "kulot jumbo 100kg", "f": 13, "v": 128}, {"k": "celana wanita kekinian jeans kulot", "f": 4, "v": 128}, {"k": "pants trousers wanita", "f": 3, "v": 128}, {"k": "pants celana panjang", "f": 13, "v": 127}, {"k": "pants 7 8 wanita", "f": 27, "v": 126}, {"k": "kulot highwaist anti kusut", "f": 5, "v": 126}, {"k": "semi kulot", "f": 3, "v": 125}, {"k": "kulot l", "f": 54, "v": 124}, {"k": "jeans 42", "f": 7, "v": 124}, {"k": "kulot wanita kekinian jumbo", "f": 11, "v": 123}, {"k": "pants anti kusut", "f": 10, "v": 123}, {"k": "jeans wanita 35", "f": 4, "v": 123}, {"k": "874 pants", "f": 36, "v": 122}, {"k": "trousers highwaist", "f": 4, "v": 121}, {"k": "celana 7xl", "f": 48, "v": 120}, {"k": "celana dalam sekali", "f": 48, "v": 120}, {"k": "loose pants 332", "f": 18, "v": 120}, {"k": "highwaist anti kusut", "f": 5, "v": 120}, {"k": "jeans wanita 36", "f": 4, "v": 119}, {"k": "kulot kekinian wanita", "f": 41, "v": 118}, {"k": "celana 3r wanita", "f": 40, "v": 118}, {"k": "kantor wanita", "f": 9, "v": 118}, {"k": "jeans ada", "f": 7, "v": 118}, {"k": "celana pants jumbo wanita", "f": 6, "v": 118}, {"k": "kulot jeans 7 8 wanita", "f": 4, "v": 118}, {"k": "celana scuba 7 8 wanita", "f": 3, "v": 118}, {"k": "celana kulot kecil", "f": 46, "v": 117}, {"k": "celana jumbo wanita 7/8", "f": 11, "v": 117}, {"k": "celana 5pm", "f": 48, "v": 116}, {"k": "celana kulot panjang 110cm", "f": 14, "v": 116}, {"k": "pants trousers", "f": 6, "v": 116}, {"k": "highwaist bahan", "f": 5, "v": 116}, {"k": "jeans 7 9 wanita highwaist", "f": 3, "v": 116}, {"k": "celana pants wanita 7/8", "f": 26, "v": 115}, {"k": "jumbo premium", "f": 5, "v": 115}, {"k": "celana highwaist jeans kulot", "f": 5, "v": 115}, {"k": "kulot jeans loose", "f": 4, "v": 115}, {"k": "kulot 3 4 wanita", "f": 41, "v": 114}, {"k": "kulot panjang 100cm", "f": 17, "v": 114}, {"k": "kulot panjang 105cm wanita", "f": 16, "v": 114}, {"k": "00 jumbo", "f": 13, "v": 114}, {"k": "kulot jeans 100cm", "f": 7, "v": 114}, {"k": "pants kerja", "f": 3, "v": 114}, {"k": "l panjang", "f": 20, "v": 113}, {"k": "jeans 5pm", "f": 7, "v": 113}, {"k": "jeans wanita kulot kekinian", "f": 4, "v": 113}, {"k": "jeans wanita 7 9 kekinian", "f": 4, "v": 113}, {"k": "jeans 7 8 wanita highwaist", "f": 3, "v": 113}, {"k": "jeans 33", "f": 7, "v": 112}, {"k": "celana jeans 7 8", "f": 7, "v": 112}, {"k": "celana highwaist wanita kulot jumbo", "f": 6, "v": 112}, {"k": "celana highwaist kulot jeans", "f": 5, "v": 112}, {"k": "celana korean style wanita kulot", "f": 3, "v": 112}, {"k": "k style", "f": 3, "v": 111}, {"k": "celana kerja saya", "f": 3, "v": 111}, {"k": "premium kulot", "f": 12, "v": 110}, {"k": "jeans 44", "f": 7, "v": 110}, {"k": "pants wanita premium", "f": 5, "v": 110}, {"k": "celana wanita kekinian kulot jeans", "f": 4, "v": 110}, {"k": "kekinian korean style", "f": 3, "v": 110}, {"k": "celana wanita korean style kulot", "f": 3, "v": 110}, {"k": "kulot h", "f": 54, "v": 109}, {"k": "v wanita", "f": 45, "v": 109}, {"k": "celana 100 dapat 5 wanita", "f": 40, "v": 109}, {"k": "pants wanita 7/8", "f": 27, "v": 109}, {"k": "loose kulot highwaist", "f": 15, "v": 109}, {"k": "01 jumbo", "f": 13, "v": 109}, {"k": "kulot kekinian jumbo", "f": 13, "v": 109}, {"k": "jeans terkini", "f": 7, "v": 109}, {"k": "jeans s", "f": 7, "v": 109}, {"k": "jeans h", "f": 7, "v": 109}, {"k": "kulot bahan highwaist", "f": 5, "v": 109}, {"k": "loose pants highwaist anti kusut", "f": 4, "v": 109}, {"k": "celana jeans wanita kekinian kulot", "f": 4, "v": 109}, {"k": "wanita wanita", "f": 45, "v": 108}, {"k": "celana kulot 3 4", "f": 44, "v": 107}, {"k": "celana wanita kekinian 2024", "f": 40, "v": 107}, {"k": "kulot korean", "f": 8, "v": 107}, {"k": "celana jeans 5pm", "f": 7, "v": 107}, {"k": "casual kulot", "f": 4, "v": 107}, {"k": "celana jeans wanita 38", "f": 4, "v": 107}, {"k": "bersama semi", "f": 3, "v": 107}, {"k": "highwaist jeans kulot wanita", "f": 3, "v": 107}, {"k": "pants panjang", "f": 13, "v": 106}, {"k": "kulot 7 8 wanita premium", "f": 10, "v": 106}, {"k": "size 14", "f": 7, "v": 106}, {"k": "kulot panjang premium", "f": 3, "v": 106}, {"k": "celana kerja 7 8 wanita", "f": 3, "v": 106}, {"k": "kulot kecil", "f": 54, "v": 105}, {"k": "3 celana", "f": 48, "v": 105}, {"k": "celana celana panjang", "f": 17, "v": 105}, {"k": "celana kusut", "f": 11, "v": 105}, {"k": "jumbo highwaist", "f": 6, "v": 105}, {"k": "highwaist jumbo wanita", "f": 6, "v": 105}, {"k": "celana pants wanita premium", "f": 5, "v": 105}, {"k": "celana wanita jeans kulot kekinian", "f": 4, "v": 105}, {"k": "highwaist jeans loose", "f": 4, "v": 105}, {"k": "korean pants premium", "f": 3, "v": 105}, {"k": "kulot korean style wanita", "f": 3, "v": 105}, {"k": "celana jeans kulot highwaist wanita", "f": 3, "v": 105}, {"k": "kulot s", "f": 56, "v": 104}, {"k": "kulot 100 dapat 7", "f": 56, "v": 104}, {"k": "selana panjang wanita", "f": 19, "v": 104}, {"k": "kulot celana panjang wanita", "f": 13, "v": 104}, {"k": "korean wanita", "f": 8, "v": 104}, {"k": "kulot pants premium", "f": 7, "v": 104}, {"k": "jeans 35", "f": 7, "v": 104}, {"k": "j jeans", "f": 7, "v": 104}, {"k": "celana panjang wanita korean", "f": 6, "v": 104}, {"k": "korean premium", "f": 3, "v": 104}, {"k": "viona kulot", "f": 3, "v": 104}, {"k": "3r celana", "f": 48, "v": 103}, {"k": "celana dalam jumbo 5l", "f": 12, "v": 103}, {"k": "celana kulot loose pants anti kusut", "f": 10, "v": 103}, {"k": "highwaist premium", "f": 8, "v": 103}, {"k": "kulot size s", "f": 7, "v": 103}, {"k": "kulot pants jumbo", "f": 6, "v": 103}, {"k": "kinerja", "f": 4, "v": 103}, {"k": "jeans 34 wanita", "f": 4, "v": 103}, {"k": "kulot style", "f": 3, "v": 103}, {"k": "korean style wanita celana", "f": 3, "v": 103}, {"k": "loose pants jumbo highwaist", "f": 3, "v": 103}, {"k": "loose pants highwaist jumbo", "f": 3, "v": 103}, {"k": "celana highwaist wanita jeans kulot", "f": 3, "v": 103}, {"k": "kulot jeans highwaist wanita", "f": 3, "v": 103}, {"k": "kulot 100", "f": 54, "v": 102}, {"k": "kulot 3", "f": 54, "v": 102}, {"k": "celana 5l", "f": 48, "v": 102}, {"k": "celana 100 dapat 7", "f": 48, "v": 102}, {"k": "kekinian wanita", "f": 47, "v": 102}, {"k": "kulot wanita kecil", "f": 43, "v": 102}, {"k": "dini pants", "f": 36, "v": 102}, {"k": "celana 7/9 wanita jumbo", "f": 11, "v": 102}, {"k": "premium wanita", "f": 10, "v": 102}, {"k": "kulot wanita kekinian premium", "f": 10, "v": 102}, {"k": "pants kulot premium", "f": 7, "v": 102}, {"k": "kulot size kecil", "f": 7, "v": 102}, {"k": "90s jeans", "f": 7, "v": 102}, {"k": "w jeans", "f": 7, "v": 102}, {"k": "saya jeans", "f": 7, "v": 102}, {"k": "highwaist kulot jumbo", "f": 6, "v": 102}, {"k": "kulot 7 8", "f": 54, "v": 101}, {"k": "celana 7 9", "f": 48, "v": 101}, {"k": "kulot panjang 90cm", "f": 17, "v": 101}, {"k": "kulot panjang highwaist", "f": 10, "v": 101}, {"k": "jeans 27", "f": 7, "v": 101}, {"k": "jumbo pants wanita", "f": 6, "v": 101}, {"k": "jeans 38 wanita", "f": 4, "v": 101}, {"k": "celana jeans wanita kulot kekinian", "f": 4, "v": 101}, {"k": "celana kulot panjang premium", "f": 3, "v": 101}, {"k": "celana leg", "f": 3, "v": 101}]
+};
+const CATEGORY_LABEL = {blouse:'Blouse rayon polkadot', kulot:'Celana kulot wanita'};
+
+let state = { category: 'blouse', photoFile: null, photoBase64: null };
+
+function fmtNum(n){ return Math.round(n).toLocaleString('id-ID'); }
+
+function normalize(s){
+  return String(s).toLowerCase().replace(/[\/+]/g,' ').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+}
+function tokenize(s){ const n = normalize(s); return n ? n.split(' ') : []; }
+
+function matchScore(titleTokens, titleNorm, kw){
+  const kwNorm = normalize(kw);
+  const kwTokens = tokenize(kw);
+  if(kwTokens.length===0) return 0;
+  if(kwTokens.length===1) return titleTokens.includes(kwTokens[0]) ? 1 : 0;
+  if(titleNorm.includes(kwNorm)) return 1;
+  const present = kwTokens.filter(t=>titleTokens.includes(t)).length;
+  const ratio = present/kwTokens.length;
+  if(ratio>=0.999) return 1;
+  if(ratio>=0.5) return 0.5;
+  return 0;
+}
+
+function analyzeCombined(category, titleText, extraFullMatchKeys){
+  const bank = DATA[category];
+  const titleTokens = tokenize(titleText);
+  const titleNorm = normalize(titleText);
+  let totalVol=0, coveredVol=0;
+  const matched=[], missed=[];
+  for(const item of bank){
+    let s = matchScore(titleTokens, titleNorm, item.k);
+    let viaPhoto = false;
+    if(extraFullMatchKeys && extraFullMatchKeys.has(item.k) && s<1){ s = 1; viaPhoto = true; }
+    totalVol += item.v;
+    coveredVol += item.v*s;
+    if(s>0) matched.push(Object.assign({}, item, {m:s, viaPhoto}));
+    else missed.push(item);
+  }
+  matched.sort((a,b)=>b.v-a.v);
+  missed.sort((a,b)=>b.v-a.v);
+  return {coverage: totalVol? coveredVol/totalVol*100 : 0, matched, missed, totalVol, coveredVol};
+}
+
+function gradeFor(pct){
+  if(pct>=60) return {label:'Sangat relevan', note:'Judul ini menyentuh sebagian besar volume pencarian utama di kategori ini, kondisi yang disukai sistem penargetan otomatis seperti GMV Max untuk menjangkau query luas maupun spesifik.'};
+  if(pct>=35) return {label:'Cukup relevan', note:'Sebagian sinyal volume tinggi sudah tertangkap, tapi masih ada ruang menambahkan istilah bervolume besar yang belum disebut di judul.'};
+  return {label:'Kurang relevan', note:'Judul ini baru menjangkau sebagian kecil volume pencarian di kategori ini. Pertimbangkan menambahkan istilah umum sekaligus istilah spesifik yang lebih sering dicari.'};
+}
+
+const segBtns = document.querySelectorAll('.seg-btn');
+segBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    segBtns.forEach(b=>{ b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
+    btn.classList.add('active');
+    btn.setAttribute('aria-pressed','true');
+    state.category = btn.dataset.cat;
+    renderPreview();
+    resultsPanel.hidden = true;
+    statusLine.textContent = '';
+  });
+});
+
+function setTotalVolLabels(){
+  document.getElementById('blouse-total-vol').textContent = fmtNum(DATA.blouse.reduce((a,b)=>a+b.v,0)) + ' pencarian/bulan';
+  document.getElementById('kulot-total-vol').textContent = fmtNum(DATA.kulot.reduce((a,b)=>a+b.v,0)) + ' pencarian/bulan';
+}
+
+function renderPreview(){
+  const bank = DATA[state.category].slice(0,8);
+  const container = document.getElementById('preview-bars');
+  container.innerHTML = '';
+  const max = bank[0] ? bank[0].v : 1;
+  bank.forEach(item=>{
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:8px;';
+    const label = document.createElement('div');
+    label.style.cssText = 'width:42%;font-size:12px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+    label.textContent = item.k;
+    const barWrap = document.createElement('div');
+    barWrap.style.cssText = 'flex:1;background:var(--panel-2);border-radius:4px;height:8px;overflow:hidden;';
+    const bar = document.createElement('div');
+    bar.style.cssText = 'height:100%;background:var(--amber);width:'+(item.v/max*100)+'%;';
+    barWrap.appendChild(bar);
+    const val = document.createElement('div');
+    val.className = 'mono';
+    val.style.cssText = 'font-size:10.5px;color:var(--text-dim);width:78px;text-align:right;flex-shrink:0;';
+    val.textContent = fmtNum(item.v);
+    row.appendChild(label); row.appendChild(barWrap); row.appendChild(val);
+    container.appendChild(row);
+  });
+}
+
+const dropzone = document.getElementById('dropzone');
+const photoInput = document.getElementById('photo-input');
+const dzContent = document.getElementById('dropzone-content');
+
+function handleFile(file){
+  if(!file || !file.type.startsWith('image/')) return;
+  state.photoFile = file;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    state.photoBase64 = e.target.result.split(',')[1];
+    dzContent.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    dzContent.appendChild(img);
+    const p = document.createElement('div');
+    p.textContent = file.name;
+    dzContent.appendChild(p);
+  };
+  reader.readAsDataURL(file);
+}
+photoInput.addEventListener('change', e=>handleFile(e.target.files[0]));
+['dragover','dragenter'].forEach(ev=>dropzone.addEventListener(ev, e=>{e.preventDefault(); dropzone.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>dropzone.addEventListener(ev, e=>{e.preventDefault(); dropzone.classList.remove('drag');}));
+dropzone.addEventListener('drop', e=>{ if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+const runBtn = document.getElementById('run-btn');
+const statusLine = document.getElementById('status-line');
+const resultsPanel = document.getElementById('results');
+const titleInput = document.getElementById('title-input');
+titleInput.addEventListener('keydown', e=>{ if(e.key==='Enter') runBtn.click(); });
+
+async function analyzePhoto(base64, mediaType){
+  const prompt = 'Kamu menganalisis foto produk fashion untuk marketplace. Amati gambar ini dan hasilkan 8 sampai 12 kata kunci singkat berbahasa Indonesia yang menggambarkan produk secara visual: jenis pakaian, warna, motif atau corak, model potongan, bahan jika terlihat, dan gaya. Pakai istilah yang biasa dipakai pembeli saat mencari produk di marketplace. Jawab HANYA dengan JSON valid tanpa teks lain, format persis seperti ini: {"tags": ["tag1", "tag2"]}';
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-6',
+      max_tokens:1000,
+      messages:[{role:'user', content:[
+        {type:'image', source:{type:'base64', media_type:mediaType, data:base64}},
+        {type:'text', text:prompt}
+      ]}]
+    })
+  });
+  const data = await res.json();
+  const textBlock = (data.content||[]).find(b=>b.type==='text');
+  if(!textBlock) throw new Error('Tidak ada hasil teks dari analisis foto');
+  const clean = textBlock.text.replace(/```json|```/g,'').trim();
+  const parsed = JSON.parse(clean);
+  return Array.isArray(parsed.tags) ? parsed.tags : [];
+}
+
+function renderTable(tableId, rows, opts){
+  const tbody = document.querySelector('#'+tableId+' tbody');
+  tbody.innerHTML = '';
+  if(rows.length===0){
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 3; td.style.cssText='color:var(--text-dim);padding:12px 6px;';
+    td.textContent = opts.empty;
+    tr.appendChild(td); tbody.appendChild(tr);
+    return;
+  }
+  rows.slice(0, opts.limit).forEach(item=>{
+    const tr = document.createElement('tr');
+    const tdK = document.createElement('td');
+    tdK.textContent = item.k;
+    if(opts.showBadge){
+      const b = document.createElement('span');
+      if(item.viaPhoto){ b.className='badge partial'; b.textContent='dari foto'; }
+      else if(item.m===1){ b.className='badge full'; b.textContent='penuh'; }
+      else if(item.m===0.5){ b.className='badge partial'; b.textContent='sebagian'; }
+      if(b.textContent) tdK.appendChild(b);
+    }
+    const tdF = document.createElement('td'); tdF.className='num'; tdF.textContent = item.f;
+    const tdV = document.createElement('td'); tdV.className='num'; tdV.textContent = fmtNum(item.v);
+    tr.appendChild(tdK); tr.appendChild(tdF); tr.appendChild(tdV);
+    tbody.appendChild(tr);
+  });
+  const caption = document.getElementById(tableId==='matched-table' ? 'matched-caption' : 'missed-caption');
+  if(rows.length > opts.limit){
+    caption.textContent = 'Menampilkan '+opts.limit+' teratas dari '+rows.length+' kata kunci.';
+  } else {
+    caption.textContent = '';
+  }
+}
+
+function renderVisualTags(tags, matchedItems){
+  const panel = document.getElementById('visual-panel');
+  const container = document.getElementById('visual-tags');
+  const hint = document.getElementById('visual-hint');
+  container.innerHTML = '';
+  if(!tags || tags.length===0){ panel.hidden = true; return; }
+  panel.hidden = false;
+  const matchedTokens = new Set();
+  matchedItems.forEach(item=>tokenize(item.k).forEach(t=>matchedTokens.add(t)));
+  let hitCount = 0;
+  tags.forEach(tag=>{
+    const el = document.createElement('span');
+    el.className = 'tag';
+    const tTokens = tokenize(tag);
+    const isHit = tTokens.length>0 && tTokens.every(t=>matchedTokens.has(t));
+    if(isHit){ el.classList.add('hit'); hitCount++; }
+    el.textContent = tag;
+    container.appendChild(el);
+  });
+  hint.textContent = hitCount+' dari '+tags.length+' istilah visual cocok dengan bank kata kunci kategori ini';
+}
+
+async function loadHistory(){
+  try{
+    const res = await window.storage.get('riwayat-uji', false);
+    return res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){ return []; }
+}
+async function saveHistory(list){
+  try{ await window.storage.set('riwayat-uji', JSON.stringify(list), false); }catch(e){}
+}
+function renderHistory(list){
+  const box = document.getElementById('history-list');
+  box.innerHTML = '';
+  if(list.length===0){
+    box.innerHTML = '<p style="color:var(--text-dim);font-size:13px;margin:0;">Belum ada pengujian.</p>';
+    return;
+  }
+  list.forEach(h=>{
+    const row = document.createElement('div');
+    row.className = 'hist-row';
+    const left = document.createElement('span');
+    left.className = 'h-title';
+    left.textContent = (h.title || '(tanpa judul)');
+    const meta = document.createElement('span');
+    meta.className = 'h-meta';
+    meta.textContent = CATEGORY_LABEL[h.category] || h.category;
+    const right = document.createElement('span');
+    right.className = 'h-score mono';
+    right.style.color = h.score>=60 ? 'var(--amber)' : (h.score>=35 ? 'var(--teal)' : 'var(--text-dim)');
+    right.textContent = h.score+'%';
+    const leftWrap = document.createElement('div');
+    leftWrap.style.cssText = 'display:flex;flex-direction:column;overflow:hidden;';
+    leftWrap.appendChild(left); leftWrap.appendChild(meta);
+    row.appendChild(leftWrap); row.appendChild(right);
+    box.appendChild(row);
+  });
+}
+
+document.getElementById('clear-history').addEventListener('click', async ()=>{
+  await saveHistory([]);
+  renderHistory([]);
+});
+
+runBtn.addEventListener('click', async ()=>{
+  const title = titleInput.value.trim();
+  if(!title){ statusLine.textContent = 'Isi judul produk dulu, ya.'; return; }
+  runBtn.disabled = true;
+  statusLine.textContent = 'Menghitung kecocokan judul...';
+
+  const textResult = analyzeCombined(state.category, title, null);
+  let finalResult = textResult;
+  let visualTags = [];
+
+  if(state.photoBase64){
+    statusLine.textContent = 'Menganalisis sinyal visual dari foto...';
+    try{
+      visualTags = await analyzePhoto(state.photoBase64, state.photoFile.type);
+      const bank = DATA[state.category];
+      const joined = visualTags.join(' ');
+      const jn = normalize(joined);
+      const jt = tokenize(joined);
+      const extraKeys = new Set();
+      bank.forEach(item=>{ if(matchScore(jt, jn, item.k) > 0) extraKeys.add(item.k); });
+      finalResult = analyzeCombined(state.category, title, extraKeys);
+      statusLine.textContent = '';
+    }catch(e){
+      statusLine.textContent = 'Analisis foto gagal — hasil di bawah hanya berdasarkan judul.';
+    }
+  } else {
+    statusLine.textContent = '';
+  }
+
+  const pct = Math.round(finalResult.coverage*10)/10;
+  const grade = gradeFor(pct);
+
+  document.getElementById('score-num').textContent = pct+'%';
+  document.getElementById('score-grade').textContent = grade.label;
+  document.getElementById('score-note').textContent = grade.note;
+  document.getElementById('meter-marker').style.left = Math.min(100,Math.max(0,pct))+'%';
+
+  renderTable('matched-table', finalResult.matched, {empty:'Belum ada kata kunci yang cocok.', limit:20, showBadge:true});
+  renderTable('missed-table', finalResult.missed, {empty:'Semua kata kunci utama sudah tercakup.', limit:15, showBadge:false});
+  renderVisualTags(visualTags, finalResult.matched);
+
+  resultsPanel.hidden = false;
+
+  const hist = await loadHistory();
+  hist.unshift({ts:Date.now(), category:state.category, title, score:pct});
+  const trimmed = hist.slice(0,20);
+  await saveHistory(trimmed);
+  renderHistory(trimmed);
+
+  runBtn.disabled = false;
+});
+
+setTotalVolLabels();
+renderPreview();
+(async ()=>{ renderHistory(await loadHistory()); })();
+</script>
+</body>
+</html>
